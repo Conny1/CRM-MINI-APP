@@ -1,0 +1,5 @@
+export { default as CRMHome  } from "./CrmHome"
+export { default as AddClient  } from "./AddClient"
+export { default as ClientDetails  } from "./ClientDetails"
+export { default as AddTask  } from "./AddTask"
+export { default as ConfirmDeleteModal  } from "./ConfirmDeleteModal"
