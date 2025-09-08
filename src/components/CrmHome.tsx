@@ -1,9 +1,15 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Clients, Dashboard, Intergrations, Settings, Tasks } from "../pages";
+import Navbar from "./Nav";
+ type Props ={
+  baseurl:string
+ }
 
-const CrmHome = () => {
+const CrmHome = ({baseurl = "/"}:Props) => {
   return (
-    <BrowserRouter>
+    <div className="W-full" >
+       <BrowserRouter basename={baseurl} >
+    <Navbar/>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/intergrations" element={<Intergrations />} />
@@ -12,6 +18,8 @@ const CrmHome = () => {
         <Route path="/clients" element={<Clients />} />
       </Routes>
     </BrowserRouter>
+    </div>
+   
   );
 };
 

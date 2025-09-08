@@ -4,17 +4,29 @@ export interface Client {
   email: string;
   phone: string;
   company: string;
-  status: string;
+  status: "Prospect" | "Lead" | "Negotiation" | "Client" | "Lost";
   tags: string[];
   notes: string[];
   tasks: string[];
   emails: string[];
 }
 
-export  interface Task  {
-      id?:string
-      title: string
-      dueDate: string
-      contact: string
-      status: string
+export interface Task {
+  id?: string;
+  title: string;
+  dueDate: string;
+  contact?: string;
+  status: string;
 }
+
+// types.ts
+export type CardItem = {
+  id: string;
+  name: string;
+  company: string;
+  note: string;
+};
+
+export type Pipeline = {
+  [stage: string]: CardItem[];
+};

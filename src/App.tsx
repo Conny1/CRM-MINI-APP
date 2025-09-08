@@ -6,7 +6,7 @@ import { CRMHome } from './components'
 function App() {
 
   return (
- <CRMHome/>
+ <CRMHome baseurl='/' />
   )
 }
 
