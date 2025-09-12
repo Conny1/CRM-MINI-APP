@@ -15,7 +15,14 @@ export interface Task {
   id?: string;
   title: string;
   dueDate: string;
-  contact?: string;
+  project: string;
+  status: string;
+}
+
+export interface Project {
+  id?: string;
+  title: string;
+  dueDate: string;
   status: string;
 }
 
@@ -30,3 +37,7 @@ export type CardItem = {
 export type Pipeline = {
   [stage: string]: CardItem[];
 };
+
+
+export type Stage = { id: string; name: string, stage:number };
+export type Tag = { id: string; name: string };

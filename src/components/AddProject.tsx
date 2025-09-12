@@ -1,38 +1,36 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { Task } from "../types";
+import type { Project } from "../types";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
   dueDate: yup.string().required("Due date is required"),
-  project: yup.string().required("Linked contact is required"),
   status: yup.string().required("Status is required"),
 });
 
 type Props = {
   onClose: () => void;
-  initialData?: Task | null;
+  initialData?: Project | null;
 };
 
-export default function AddTask({
+export default function AddProject({
   onClose,
   initialData,
 }: Props) {
   const {
     register,
     formState: { errors },
-  } = useForm<Task>({
+  } = useForm<Project>({
     resolver: yupResolver(schema),
     defaultValues: initialData || {
       title: "",
       dueDate: "",
-      project: "",
       status: "Pending",
     },
   });
 
-  const handleFormSubmit = (data: Task) => {
+  const handleFormSubmit = (data: Project) => {
     onClose();
   };
 
@@ -47,7 +45,7 @@ export default function AddTask({
         </button>
 
         <h2 className="text-xl font-semibold mb-6">
-          {initialData ? "Edit Task" : "Add Task"}
+          {initialData ? "Edit Project" : "Add Project"}
         </h2>
 
         <form onSubmit={()=>handleFormSubmit} className="space-y-4">
@@ -81,22 +79,7 @@ export default function AddTask({
             )}
           </div>
 
-          {/* project */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Linked Project
-            </label>
-           <select
-              {...register("project")}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="darnocid">darnoc</option>
-              <option value="invoiceid">invoice</option>
-            </select>
-            {errors.project && (
-              <p className="text-red-500 text-sm">{errors.project.message}</p>
-            )}
-          </div>
+      
 
           {/* Status */}
           <div>

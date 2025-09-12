@@ -1,15 +1,14 @@
 import { useState } from "react";
+import type { Stage, Tag } from "../types";
 
-type Stage = { id: string; name: string };
-type Tag = { id: string; name: string };
 
 export default function SettingsPage() {
   const [stages, setStages] = useState<Stage[]>([
-    { id: "1", name: "Prospect" },
-    { id: "2", name: "Contacted" },
-    { id: "3", name: "Negotiation" },
-    { id: "4", name: "Won" },
-    { id: "5", name: "Lost" },
+    { id: "1", stage:1,  name: "Prospect" },
+    { id: "2", stage:2,  name: "Contacted" },
+    { id: "3", stage:3,  name: "Negotiation" },
+    { id: "4", stage:4,  name: "Won" },
+    { id: "5", stage:5,  name: "Lost" },
   ]);
 
   const [tags, setTags] = useState<Tag[]>([
@@ -21,31 +20,9 @@ export default function SettingsPage() {
   const [emailSync, setEmailSync] = useState(false);
   const [calendarSync, setCalendarSync] = useState(false);
 
-  // Pipeline actions
-  const addStage = () => {
-    setStages([...stages, { id: Date.now().toString(), name: "New Stage" }]);
-  };
+ 
 
-  const updateStage = (id: string, name: string) => {
-    setStages(stages.map((s) => (s.id === id ? { ...s, name } : s)));
-  };
-
-  const removeStage = (id: string) => {
-    setStages(stages.filter((s) => s.id !== id));
-  };
-
-  // Tag actions
-  const addTag = () => {
-    setTags([...tags, { id: Date.now().toString(), name: "New Tag" }]);
-  };
-
-  const updateTag = (id: string, name: string) => {
-    setTags(tags.map((t) => (t.id === id ? { ...t, name } : t)));
-  };
-
-  const removeTag = (id: string) => {
-    setTags(tags.filter((t) => t.id !== id));
-  };
+  
 
   return (
     <div className="p-10 bg-gray-50 min-h-screen">
@@ -58,7 +35,10 @@ export default function SettingsPage() {
           <p className="text-gray-500 mb-6">
             Customize the sales stages your leads go through.
           </p>
-
+    <div className="flex justify-evenly " >
+      <p className="text-xl font-bold text-gray-900 mb-2" > Name</p>
+      <p className="text-xl font-bold text-gray-900 mb-2" >Stage</p>
+    </div>
           <div className="space-y-3">
             {stages.map((stage) => (
               <div
@@ -68,14 +48,23 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   value={stage.name}
-                  onChange={(e) => updateStage(stage.id, e.target.value)}
                   className="flex-1 px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                 />
-                <button
-                  onClick={() => removeStage(stage.id)}
-                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800"
+                   <input
+                  type="number"
+                  value={stage.stage}
+                  className="flex-1 px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                />
+                 <button
+                  // onClick={() => removeTag(tag.id)}
+                  className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                 >
-                  Remove
+                  save
+                </button>
+                <button
+                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 cursor-pointer "
+                >
+                  Delete
                 </button>
               </div>
             ))}
@@ -83,7 +72,6 @@ export default function SettingsPage() {
 
           <div className="mt-5">
             <button
-              onClick={addStage}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition"
             >
               + Add Stage
@@ -109,14 +97,18 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   value={tag.name}
-                  onChange={(e) => updateTag(tag.id, e.target.value)}
                   className="flex-1 px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                 />
-                <button
-                  onClick={() => removeTag(tag.id)}
-                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800"
+                  <button
+                  // onClick={() => removeTag(tag.id)}
+                  className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                 >
-                  Remove
+                  save
+                </button>
+                <button
+                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 cursor-pointer "
+                >
+                  Delete
                 </button>
               </div>
             ))}
@@ -124,7 +116,6 @@ export default function SettingsPage() {
 
           <div className="mt-5">
             <button
-              onClick={addTag}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition"
             >
               + Add Tag
