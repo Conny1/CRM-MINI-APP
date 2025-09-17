@@ -1,23 +1,25 @@
 export interface Client {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  status: "Prospect" | "Lead" | "Negotiation" | "Client" | "Lost" | String;
-  tags: string[];
-  notes: string[];
-  emails: string[];
+  name?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  status?: "Prospect" | "Lead" | "Negotiation" | "Client" | "Lost" | string;
+  tags?: string[];
+  notes?: string[];
+  emails?: string[];
 }
 
-export  type addClient = {
-  "user_id":String,
-	"name":String,
-	"email":String,
-	"status":String,
-	"phone":String,
-	"tags":[String]
-}
+export type addClient = {
+  user_id: string;
+  name: string;
+  email: string;
+  status: string;
+  phone: string;
+  company: string;
+
+  // "tags":[String]
+};
 export interface Task {
   id?: string;
   title: string;
@@ -55,9 +57,9 @@ export type findandfileter = {
   match_values: Object;
 };
 
-export type Pagination ={
-   page:number,
-   limit:number,
-   totalPages:number,
-   totalResults:number
-}
+export type Pagination = {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
+};

@@ -5,6 +5,14 @@ export const crmApi = createApi({
   reducerPath: "crmApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGMwMGI1ZmJhYzk2NzczOTYzOGQ0MmUiLCJpYXQiOjE3NTc1OTcyNTh9.hBs8PY9jdogePqODqjU62EILdT5elXhMqfspp2Ui-p8";
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     findandFilterClients: builder.mutation<
@@ -53,3 +61,10 @@ export const crmApi = createApi({
     }),
   }),
 });
+
+export const {
+  useGetClientByidQuery,
+  useAddClientMutation,
+  useFindandFilterClientsMutation,
+  useDeleteClientQuery,
+} = crmApi;

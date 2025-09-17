@@ -1,22 +1,17 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import type { addClient } from "../types";
 
 const schema = yup.object().shape({
+  user_id: yup.string().required("userid is required"),
+
   name: yup.string().required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone is required"),
   company: yup.string().required("Company is required"),
   status: yup.string().required("Status is required"),
 });
-
-interface FormInputs {
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  status: string;
-}
 
 type Props = {
   setshowForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,9 +23,9 @@ export default function AddClientForm({ setshowForm }: Props) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormInputs>({ resolver: yupResolver(schema) });
+  } = useForm<addClient>({ resolver: yupResolver(schema) });
 
-  const onSubmit = (data: FormInputs) => {
+  const onSubmit = (data: addClient) => {
     console.log("Client added:", data);
     reset();
     setshowForm(false);
@@ -63,9 +58,7 @@ export default function AddClientForm({ setshowForm }: Props) {
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 

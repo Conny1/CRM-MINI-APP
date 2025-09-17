@@ -1,43 +1,31 @@
-import { useState } from "react";
-import type { Client } from "../types";
+import { useEffect, useState } from "react";
+import type { Client, findandfileter } from "../types";
 import { AddClient, ClientDetails } from "../components";
-
-
-
-const initialClients: Client[] = [
-  {
-    id: 1,
-    name: "Jane Doe",
-    email: "jane@example.com",
-    phone: "+1 555-111-2222",
-    company: "Acme Corp",
-    status: "Active",
-    tags: ["VIP", "Newsletter"],
-    notes: ["Followed up on pricing", "Interested in premium plan"],
-    tasks: ["Send contract", "Book demo"],
-    emails: ["Intro email sent", "Pricing details shared"]
-  },
-  {
-    id: 2,
-    name: "John Smith",
-    email: "john@example.com",
-    phone: "+1 555-333-4444",
-    company: "Beta LLC",
-    status: "Prospect",
-    tags: ["Trial"],
-    notes: ["Requested trial account"],
-    tasks: ["Check trial usage"],
-    emails: ["Welcome email sent"]
-  }
-];
+import { useFindandFilterClientsMutation } from "../redux/crm";
 
 export default function Clients() {
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [findandFilterClients] = useFindandFilterClientsMutation();
+  const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [showForm, setshowForm] = useState(false)
+  const [showForm, setshowForm] = useState(false);
+  const [filters, setfilters] = useState <findandfileter> ({
+    sortBy: "_id:-1",
+    limit: 10,
+    page: 1,
+    search: "",
+    match_values: {},
+  });
 
+  useEffect(() => {
+    findandFilterClients(filters).then((data)=>{
+      let resp = data.data
+      if(data){
+        setClients( resp?.data.results || [] )
+      }
+    }) ;
+  }, []);
 
   return (
     <div className="p-6 space-y-4 w-full  ">
@@ -63,7 +51,10 @@ export default function Clients() {
           <option value="Prospect">Prospect</option>
         </select>
 
-        <button onClick={()=>setshowForm(true)} className="bg-blue-600 text-white px-4 w-[150px] py-2 rounded">
+        <button
+          onClick={() => setshowForm(true)}
+          className="bg-blue-600 text-white px-4 w-[150px] py-2 rounded"
+        >
           Add Client
         </button>
       </div>
@@ -95,14 +86,15 @@ export default function Clients() {
                 <td className="p-2">{client.status}</td>
                 <td className="p-2">
                   <div className="flex gap-1 flex-wrap">
-                    {client.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    {client.tags &&
+                      client?.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                   </div>
                 </td>
               </tr>
@@ -112,11 +104,14 @@ export default function Clients() {
       </div>
 
       {/* Client Detail Modal */}
-      {selectedClient && <ClientDetails setSelectedClient={setSelectedClient} selectedClient={selectedClient} /> }
+      {selectedClient && (
+        <ClientDetails
+          setSelectedClient={setSelectedClient}
+          selectedClient={selectedClient}
+        />
+      )}
       {/* add client modal  */}
-      {
-        showForm && <AddClient setshowForm={setshowForm}  />
-      }
+      {showForm && <AddClient setshowForm={setshowForm} />}
     </div>
   );
 }
