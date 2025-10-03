@@ -2,10 +2,10 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { addClient } from "../types";
+import { useAddClientMutation } from "../redux/crm";
+import { ToastContainer, toast } from "react-toastify";
 
 const schema = yup.object().shape({
-  user_id: yup.string().required("userid is required"),
-
   name: yup.string().required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone is required"),
@@ -24,15 +24,28 @@ export default function AddClientForm({ setshowForm }: Props) {
     reset,
     formState: { errors },
   } = useForm<addClient>({ resolver: yupResolver(schema) });
+  const [addClient, { isLoading: addClientLoading }] = useAddClientMutation();
 
   const onSubmit = (data: addClient) => {
     console.log("Client added:", data);
-    reset();
-    setshowForm(false);
+    let payload = { ...data, user_id: "68c00b5fbac967739638d42e" };
+    addClient(payload)
+      .then((resp) => {
+        let status = resp.data?.status;
+        if (status && status === 200) {
+          toast.success("New client created");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Try again..");
+      })
+      .finally(() => reset());
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+      <ToastContainer />
       <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative">
         {/* Close button */}
         <button
@@ -138,15 +151,16 @@ export default function AddClientForm({ setshowForm }: Props) {
             <button
               type="button"
               onClick={() => setshowForm(false)}
-              className="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-50"
+              className="px-4 py-2  rounded-lg border text-gray-600 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
+              disabled={addClientLoading}
               type="submit"
-              className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700    disabled:bg-gray-400 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-500 ease-in-out"
             >
-              Save Client
+              {addClientLoading ? "Loading..." : "Save Client"}
             </button>
           </div>
         </form>

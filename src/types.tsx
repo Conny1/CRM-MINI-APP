@@ -11,7 +11,7 @@ export interface Client {
 }
 
 export type addClient = {
-  user_id: string;
+  user_id?: string;
   name: string;
   email: string;
   status: string;
@@ -30,8 +30,20 @@ export interface Task {
 
 export interface Project {
   id?: string;
+  user_id:string,
   title: string;
   dueDate: string;
+  endDate:string,
+  startDate:string,
+  client_id:string,
+  status: "Pending" | "Completed" |"InProgress" | "Cancelled";
+}
+export interface addProjectType {
+  user_id?:string,
+  title: string;
+  dueDate: string;
+  startDate:string,
+  client_id?:string,
   status: string;
 }
 

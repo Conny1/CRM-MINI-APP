@@ -64,7 +64,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {selectedClient.tags.map((tag) => (
+                {selectedClient?.tags.map((tag) => (
                   <span
                     key={tag}
                     className="bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium px-3 py-1 rounded-full"
@@ -81,9 +81,9 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
               Notes
             </h3>
-            {selectedClient.notes.length > 0 ? (
+            {selectedClient?.notes?.length > 0 ? (
               <ul className="space-y-3">
-                {selectedClient.notes.map((note, i) => (
+                {selectedClient?.notes.map((note, i) => (
                   <li
                     key={i}
                     className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700"
@@ -102,7 +102,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
               Tasks
             </h3>
-            {selectedClient.tasks.length > 0 ? (
+            {selectedClient?.tasks?.length > 0 ? (
               <ul className="space-y-3">
                 {selectedClient.tasks.map((task, i) => (
                   <li
@@ -119,26 +119,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
             )}
           </div>
 
-          {/* Emails Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-              Emails
-            </h3>
-            {selectedClient.emails.length > 0 ? (
-              <ul className="space-y-3">
-                {selectedClient.emails.map((mail, i) => (
-                  <li
-                    key={i}
-                    className="bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-700 shadow-sm"
-                  >
-                    {mail}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-400 italic">No emails logged</p>
-            )}
-          </div>
+    
         </div>
       </div>
     </div>

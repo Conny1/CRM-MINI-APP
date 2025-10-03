@@ -10,7 +10,7 @@ export default function Clients() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showForm, setshowForm] = useState(false);
-  const [filters, setfilters] = useState <findandfileter> ({
+  const [filters, setfilters] = useState<findandfileter>({
     sortBy: "_id:-1",
     limit: 10,
     page: 1,
@@ -19,13 +19,23 @@ export default function Clients() {
   });
 
   useEffect(() => {
-    findandFilterClients(filters).then((data)=>{
-      let resp = data.data
-      if(data){
-        setClients( resp?.data.results || [] )
+    findandFilterClients(filters).then((data) => {
+      let resp = data.data;
+      if (data) {
+        setClients(resp?.data.results || []);
       }
-    }) ;
+    });
   }, []);
+
+  const filterandSearchClients = (payload: findandfileter) => {
+    setfilters(payload);
+    findandFilterClients(payload).then((data) => {
+      let resp = data.data;
+      if (data) {
+        setClients(resp?.data.results || []);
+      }
+    });
+  };
 
   return (
     <div className="p-6 space-y-4 w-full  ">
@@ -44,7 +54,16 @@ export default function Clients() {
         <select
           className="border rounded px-3 py-2"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            let payload = filters;
+            if (e.target.value !== "All") {
+              payload.match_values = { status: e.target.value };
+            }else{
+              payload.match_values = {}
+            }
+            filterandSearchClients(payload);
+            setStatusFilter(e.target.value);
+          }}
         >
           <option value="All">All</option>
           <option value="Active">Active</option>
@@ -64,12 +83,12 @@ export default function Clients() {
         <table className="w-full border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="text-left p-2">Name</th>
-              <th className="text-left p-2">Email</th>
-              <th className="text-left p-2">Phone</th>
-              <th className="text-left p-2">Company</th>
-              <th className="text-left p-2">Status</th>
-              <th className="text-left p-2">Tags</th>
+              <th className="text-Center p-2">Name</th>
+              <th className="text-Center p-2">Email</th>
+              <th className="text-Center p-2">Phone</th>
+              <th className="text-Center p-2">Company</th>
+              <th className="text-Center p-2">Status</th>
+              <th className="text-Center p-2">Tags</th>
             </tr>
           </thead>
           <tbody>
@@ -87,9 +106,9 @@ export default function Clients() {
                 <td className="p-2">
                   <div className="flex gap-1 flex-wrap">
                     {client.tags &&
-                      client?.tags.map((tag) => (
+                      client?.tags.map((tag, i) => (
                         <span
-                          key={tag}
+                          key={i}
                           className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
                         >
                           {tag}

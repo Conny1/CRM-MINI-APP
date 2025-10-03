@@ -1,5 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { addClient, Client, findandfileter, Pagination } from "../types";
+import type {
+  addClient,
+  addProjectType,
+  Client,
+  findandfileter,
+  Pagination,
+  Project,
+} from "../types";
 
 export const crmApi = createApi({
   reducerPath: "crmApi",
@@ -59,6 +66,53 @@ export const crmApi = createApi({
         method: "DELETE",
       }),
     }),
+    // Projects
+    findandFilterProjects: builder.mutation<
+      { status: number; data: { results: Project[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/project/findandfilter",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    addProject: builder.mutation<
+      { status: number; data: { message: string } },
+      addProjectType
+    >({
+      query: (body) => ({
+        url: "/admin/project/",
+        method: "POST",
+        body,
+      }),
+    }),
+    updateProject: builder.mutation<{ status: number; data: Project }, Project>(
+      {
+        query: (body) => ({
+          url: "/admin/project/",
+          method: "PUT",
+          body,
+        }),
+      }
+    ),
+
+    getProjectByid: builder.query<{ status: number; data: Project }, string>({
+      query: (id) => ({
+        url: `/admin/project/${id}`,
+      }),
+    }),
+
+    deleteProject: builder.query<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/project/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -67,4 +121,8 @@ export const {
   useAddClientMutation,
   useFindandFilterClientsMutation,
   useDeleteClientQuery,
+  useAddProjectMutation,
+  useFindandFilterProjectsMutation,
+  useGetProjectByidQuery,
+  useDeleteProjectQuery,
 } = crmApi;
