@@ -94,7 +94,7 @@ export default function Clients() {
           <tbody>
             {clients.map((client) => (
               <tr
-                key={client.id}
+                key={client._id}
                 className="cursor-pointer hover:bg-gray-50"
                 onClick={() => setSelectedClient(client)}
               >

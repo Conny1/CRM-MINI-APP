@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { addProjectType, Project } from "../types";
-import { useAddProjectMutation } from "../redux/crm";
+import type { Project } from "../types";
+import { useUpdateProjectMutation } from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
@@ -10,40 +10,47 @@ const schema = yup.object().shape({
   dueDate: yup.string().required("Due date is required"),
   startDate: yup.string().required("start date date"),
   status: yup.string().required("Status is required"),
+  endDate: yup.string().default(null),
+  client_id: yup.string().required("client is required"),
 });
+
+interface ProjectInput {
+  title: string;
+  dueDate: string;
+  startDate: string;
+  status: string;
+  client_id: string;
+  endDate: string 
+}
 
 type Props = {
   onClose: () => void;
+  initialData: Project;
 };
 
-export default function AddProject({ onClose }: Props) {
+export default function UpdateProject({ onClose, initialData }: Props) {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<addProjectType>({
+  } = useForm<ProjectInput>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      title: "",
-      dueDate: "",
-      startDate: "",
-      status: "Pending",
-    },
+    defaultValues: initialData 
   });
-  const [addProject, { isLoading: addProjectLoading }] =
-    useAddProjectMutation();
-  const onSubmit = (data: addProjectType) => {
-    let payload = {
-      ...data,
-      user_id: "68c00b5fbac967739638d42e",
-      client_id: "68c00b5fbac967739638d42e",
-    };
-    addProject(payload)
+  const [updateProject, { isLoading: updateProjectLoading }] =
+    useUpdateProjectMutation();
+
+  const onSubmit = (data: ProjectInput) => {
+
+    
+    let payload = data as Project;
+
+    updateProject(payload)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
-          toast.success("New project added");
+          toast.success("project updated");
         }
       })
       .catch((error) => {
@@ -55,7 +62,7 @@ export default function AddProject({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative">
         <button
           onClick={onClose}
@@ -64,9 +71,7 @@ export default function AddProject({ onClose }: Props) {
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold mb-6">
-          Add Project
-        </h2>
+        <h2 className="text-xl font-semibold mb-6">Edit Project</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Title */}
@@ -113,6 +118,17 @@ export default function AddProject({ onClose }: Props) {
             )}
           </div>
 
+          {/* end date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              {...register("endDate")}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -141,11 +157,11 @@ export default function AddProject({ onClose }: Props) {
               Cancel
             </button>
             <button
-              disabled={addProjectLoading}
+              disabled={updateProjectLoading}
               type="submit"
               className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700    disabled:bg-gray-400 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-500 ease-in-out"
             >
-              {addProjectLoading ? "Loading..." : "Save "}
+              {updateProjectLoading ? "Loading..." : "Save "}
             </button>
           </div>
         </form>

@@ -1,5 +1,5 @@
 export interface Client {
-  id: number;
+  _id: number;
   name?: string;
   email?: string;
   phone?: string;
@@ -21,23 +21,25 @@ export type addClient = {
   // "tags":[String]
 };
 export interface Task {
-  id?: string;
+  _id?: string;
   title: string;
   dueDate: string;
   project: string;
   status: string;
+  project_name:string
 }
 
 export interface Project {
-  id?: string;
+  _id: string;
   user_id:string,
   title: string;
   dueDate: string;
-  endDate:string,
+  endDate?:string,
   startDate:string,
   client_id:string,
   status: "Pending" | "Completed" |"InProgress" | "Cancelled";
 }
+
 export interface addProjectType {
   user_id?:string,
   title: string;

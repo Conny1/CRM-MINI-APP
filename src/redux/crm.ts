@@ -6,6 +6,7 @@ import type {
   findandfileter,
   Pagination,
   Project,
+  Task,
 } from "../types";
 
 export const crmApi = createApi({
@@ -91,7 +92,7 @@ export const crmApi = createApi({
     updateProject: builder.mutation<{ status: number; data: Project }, Project>(
       {
         query: (body) => ({
-          url: "/admin/project/",
+          url: `/admin/project/${body._id}`,
           method: "PUT",
           body,
         }),
@@ -113,6 +114,52 @@ export const crmApi = createApi({
         method: "DELETE",
       }),
     }),
+
+    // TASKS
+    findandFilterTasks: builder.mutation<
+      { status: number; data: { results: Task[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/task/findandfilter",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    addTask: builder.mutation<
+      { status: number; data: { message: string } },
+      Task
+    >({
+      query: (body) => ({
+        url: "/admin/task/",
+        method: "POST",
+        body,
+      }),
+    }),
+    updateTask: builder.mutation<{ status: number; data: Task }, Task>({
+      query: (body) => ({
+        url: `/admin/task/${body._id}`,
+        method: "PUT",
+        body,
+      }),
+    }),
+
+    getTaskByid: builder.query<{ status: number; data: Task }, string>({
+      query: (id) => ({
+        url: `/admin/task/${id}`,
+      }),
+    }),
+
+    deletetask: builder.query<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/task/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -122,7 +169,13 @@ export const {
   useFindandFilterClientsMutation,
   useDeleteClientQuery,
   useAddProjectMutation,
+  useUpdateProjectMutation,
   useFindandFilterProjectsMutation,
   useGetProjectByidQuery,
   useDeleteProjectQuery,
+  useAddTaskMutation,
+  useDeletetaskQuery,
+  useGetTaskByidQuery,
+  useFindandFilterTasksMutation,
+  useUpdateTaskMutation,
 } = crmApi;

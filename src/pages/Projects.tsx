@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { findandfileter, Project } from "../types";
-import { AddProject, ConfirmDeleteModal } from "../components";
+import { AddProject, ConfirmDeleteModal, UpdateProject } from "../components";
 import { useFindandFilterProjectsMutation } from "../redux/crm";
 
 export default function Projects() {
@@ -40,11 +40,10 @@ export default function Projects() {
 
   const handleDelete = () => {
     if (deleteProject) {
-      setProjects((prev) => prev.filter((t) => t.id !== deleteProject.id));
+      setProjects((prev) => prev.filter((t) => t._id !== deleteProject._id));
       setDeleteProject(null);
     }
   };
-
 
   return (
     <div className="p-6 space-y-4 w-full  ">
@@ -81,16 +80,16 @@ export default function Projects() {
         </select>
 
         <button
-    onClick={() => {
+          onClick={() => {
             setEditProject(null);
             setShowForm(true);
-          }}          className="bg-blue-600 text-white px-4 w-[150px] py-2 rounded hover:bg-blue-700"
+          }}
+          className="bg-blue-600 text-white px-4 w-[150px] py-2 rounded hover:bg-blue-700"
         >
           + Add Project
         </button>
       </div>
       {/* table */}
-
 
       {/* Project Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -110,7 +109,7 @@ export default function Projects() {
           <tbody>
             {Projects.map((Project) => (
               <tr
-                key={Project.id}
+                key={Project._id}
                 className="border-t hover:bg-gray-50 transition"
               >
                 <td className="p-3">{Project.title}</td>
@@ -127,10 +126,7 @@ export default function Projects() {
                   </span>
                 </td>
                 <td className="p-3 flex justify-end gap-2">
-                  <button
-                
-                    className="text-sm text-gray-600 hover:text-blue-600"
-                  >
+                  <button className="text-sm text-gray-600 hover:text-blue-600">
                     {Project.status === "Pending"
                       ? "Mark Done"
                       : "Mark Pending"}
@@ -165,8 +161,14 @@ export default function Projects() {
       </div>
 
       {/* Modals */}
-      {showForm && (
-        <AddProject
+      {showForm &&
+        !editProject && (
+            <AddProject
+              onClose={() => setShowForm(false)}
+            />
+          )}
+      {showForm && editProject && (
+        <UpdateProject
           onClose={() => setShowForm(false)}
           initialData={editProject}
         />
