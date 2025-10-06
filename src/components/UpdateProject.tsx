@@ -20,7 +20,7 @@ interface ProjectInput {
   startDate: string;
   status: string;
   client_id: string;
-  endDate: string 
+  endDate: string;
 }
 
 type Props = {
@@ -36,21 +36,28 @@ export default function UpdateProject({ onClose, initialData }: Props) {
     formState: { errors },
   } = useForm<ProjectInput>({
     resolver: yupResolver(schema),
-    defaultValues: initialData 
+    defaultValues: {
+      ...initialData,
+      startDate: initialData.startDate?.split("T")[0],
+      endDate: initialData.startDate?.split("T")[0],
+      dueDate: initialData.startDate?.split("T")[0],
+    },
   });
   const [updateProject, { isLoading: updateProjectLoading }] =
     useUpdateProjectMutation();
 
   const onSubmit = (data: ProjectInput) => {
-
-    
     let payload = data as Project;
+    payload.endDate =
+      data.status !== "Completed" ? "" : new Date().toISOString();
 
     updateProject(payload)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
           toast.success("project updated");
+
+          onClose();
         }
       })
       .catch((error) => {

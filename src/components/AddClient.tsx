@@ -27,7 +27,6 @@ export default function AddClientForm({ setshowForm }: Props) {
   const [addClient, { isLoading: addClientLoading }] = useAddClientMutation();
 
   const onSubmit = (data: addClient) => {
-    console.log("Client added:", data);
     let payload = { ...data, user_id: "68c00b5fbac967739638d42e" };
     addClient(payload)
       .then((resp) => {
@@ -63,7 +62,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -78,7 +77,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -95,7 +94,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
+              Phone <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -112,7 +111,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           {/* Company */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Company
+              Company <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -129,7 +128,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              Status <span className="text-red-500">*</span>
             </label>
             <select
               {...register("status")}
@@ -138,6 +137,10 @@ export default function AddClientForm({ setshowForm }: Props) {
               <option value="">Select Status</option>
               <option value="Active">Active</option>
               <option value="Prospect">Prospect</option>
+              <option value="Lead">Lead</option>
+              <option value="Won">Won</option>{" "}
+              <option value="Lost">Lost</option>
+              <option value="Contacted">Contacted</option>
             </select>
             {errors.status && (
               <p className="text-red-500 text-sm mt-1">
@@ -145,6 +148,8 @@ export default function AddClientForm({ setshowForm }: Props) {
               </p>
             )}
           </div>
+
+          {/* tags */}
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">

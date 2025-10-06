@@ -1,43 +1,62 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { Task } from "../types";
+import type { TaskformInputType } from "../types";
+import { useAddTaskMutation } from "../redux/crm";
+import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
-  dueDate: yup.string().required("Due date is required"),
-  project: yup.string().required("Linked contact is required"),
+  dueDate: yup.string().required("Start date is required"),
+  endDate: yup.string().default(null),
+  startDate: yup.string().required("Start date is required"),
+  project_id: yup.string().required("Linked contact is required"),
   status: yup.string().required("Status is required"),
 });
 
 type Props = {
   onClose: () => void;
-  initialData?: Task | null;
 };
 
-export default function AddTask({
-  onClose,
-  initialData,
-}: Props) {
+export default function AddTask({ onClose }: Props) {
   const {
     register,
+    handleSubmit,
     formState: { errors },
-  } = useForm<Task>({
+  } = useForm<TaskformInputType>({
     resolver: yupResolver(schema),
-    defaultValues: initialData || {
+    defaultValues: {
       title: "",
       dueDate: "",
-      project: "",
+      project_id: "",
+      endDate: "",
+      startDate: "",
       status: "Pending",
     },
   });
-
-  const handleFormSubmit = (data: Task) => {
-    onClose();
+  const [addTask, { isLoading: addTaskLoading }] = useAddTaskMutation();
+  const onSubmit = (data: TaskformInputType) => {
+    let payload = {
+      ...data,
+      user_id: "68c00b5fbac967739638d42e",
+      project_name: "Darnoc test project",
+    };
+    addTask(payload)
+      .then((resp) => {
+        let status = resp.data?.status;
+        if (status && status === 200) {
+          toast.success("New task added");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Try again..");
+      });
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <ToastContainer/>
       <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative">
         <button
           onClick={onClose}
@@ -47,10 +66,10 @@ export default function AddTask({
         </button>
 
         <h2 className="text-xl font-semibold mb-6">
-          {initialData ? "Edit Task" : "Add Task"}
+         "Add Task"
         </h2>
 
-        <form onSubmit={()=>handleFormSubmit} className="space-y-4">
+        <form onSubmit={ handleSubmit(onSubmit)} className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -65,6 +84,21 @@ export default function AddTask({
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
+   {/* Start Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              {...register("startDate")}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+            {errors.startDate && (
+              <p className="text-red-500 text-sm">{errors.startDate.message}</p>
+            )}
+          </div>
+
 
           {/* Due Date */}
           <div>
@@ -86,15 +120,17 @@ export default function AddTask({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Linked Project
             </label>
-           <select
-              {...register("project")}
+            <select
+              {...register("project_id")}
               className="w-full border rounded-lg px-3 py-2"
             >
-              <option value="darnocid">darnoc</option>
-              <option value="invoiceid">invoice</option>
+              <option value="68c2d1fd6a857cbb5c8ae0c0">darnoc</option>
+              <option value="68c2d1fd6a857cbb5c8ae0c0">invoice</option>
             </select>
-            {errors.project && (
-              <p className="text-red-500 text-sm">{errors.project.message}</p>
+            {errors.project_id && (
+              <p className="text-red-500 text-sm">
+                {errors.project_id.message}
+              </p>
             )}
           </div>
 
@@ -125,9 +161,10 @@ export default function AddTask({
             </button>
             <button
               type="submit"
+              disabled={addTaskLoading}
               className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             >
-              Save
+              {addTaskLoading ? "Loading..." : "Save"}
             </button>
           </div>
         </form>

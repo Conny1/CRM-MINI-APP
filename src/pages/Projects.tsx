@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import type { findandfileter, Project } from "../types";
 import { AddProject, ConfirmDeleteModal, UpdateProject } from "../components";
-import { useFindandFilterProjectsMutation } from "../redux/crm";
+import {
+  useFindandFilterProjectsMutation,
+  useUpdateProjectMutation,
+} from "../redux/crm";
+import { toast } from "react-toastify";
 
 export default function Projects() {
+  const [updateProject] = useUpdateProjectMutation();
   const [Projects, setProjects] = useState<Project[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
@@ -26,7 +31,7 @@ export default function Projects() {
         setProjects(resp?.data.results || []);
       }
     });
-  }, []);
+  }, [showForm]);
 
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
@@ -43,6 +48,26 @@ export default function Projects() {
       setProjects((prev) => prev.filter((t) => t._id !== deleteProject._id));
       setDeleteProject(null);
     }
+  };
+
+  const markProjectasDone = (id: string) => {
+    let status:"Completed" = "Completed"
+    let payload = {
+      status,
+      _id: id,
+      endDate: new Date().toISOString(),
+    };
+    updateProject(payload)
+      .then((resp) => {
+        let status = resp.data?.status;
+        if (status && status === 200) {
+          toast.success("Project marked as done");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Try again..");
+      });
   };
 
   return (
@@ -112,8 +137,10 @@ export default function Projects() {
                 key={Project._id}
                 className="border-t hover:bg-gray-50 transition"
               >
-                <td className="p-3">{Project.title}</td>
-                <td className="p-3">{Project.dueDate.split("T")[0]}</td>
+                <td className="p-3">{Project?.title}</td>
+                <td className="p-3">
+                  {Project?.dueDate && Project.dueDate.split("T")[0]}
+                </td>
                 <td className="p-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs ${
@@ -122,15 +149,18 @@ export default function Projects() {
                         : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {Project.status}
+                    {Project?.status}
                   </span>
                 </td>
                 <td className="p-3 flex justify-end gap-2">
-                  <button className="text-sm text-gray-600 hover:text-blue-600">
-                    {Project.status === "Pending"
-                      ? "Mark Done"
-                      : "Mark Pending"}
-                  </button>
+                  {Project.status !== "Completed" && (
+                    <button
+                      onClick={() => markProjectasDone(Project._id)}
+                      className="text-sm text-gray-600 hover:text-blue-600"
+                    >
+                      Mark as Done
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setEditProject(Project);
@@ -161,12 +191,9 @@ export default function Projects() {
       </div>
 
       {/* Modals */}
-      {showForm &&
-        !editProject && (
-            <AddProject
-              onClose={() => setShowForm(false)}
-            />
-          )}
+      {showForm && !editProject && (
+        <AddProject onClose={() => setShowForm(false)} />
+      )}
       {showForm && editProject && (
         <UpdateProject
           onClose={() => setShowForm(false)}

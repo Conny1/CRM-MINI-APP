@@ -4,7 +4,7 @@ import { AddClient, ClientDetails } from "../components";
 import { useFindandFilterClientsMutation } from "../redux/crm";
 
 export default function Clients() {
-  const [findandFilterClients] = useFindandFilterClientsMutation();
+  const [findandFilterClients,] = useFindandFilterClientsMutation();
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -16,7 +16,7 @@ export default function Clients() {
     page: 1,
     search: "",
     match_values: {},
-  });
+  }); 
 
   useEffect(() => {
     findandFilterClients(filters).then((data) => {
@@ -25,7 +25,7 @@ export default function Clients() {
         setClients(resp?.data.results || []);
       }
     });
-  }, []);
+  }, [showForm]);
 
   const filterandSearchClients = (payload: findandfileter) => {
     setfilters(payload);

@@ -7,6 +7,7 @@ import type {
   Pagination,
   Project,
   Task,
+  TaskformInputType,
 } from "../types";
 
 export const crmApi = createApi({
@@ -129,7 +130,7 @@ export const crmApi = createApi({
 
     addTask: builder.mutation<
       { status: number; data: { message: string } },
-      Task
+      TaskformInputType
     >({
       query: (body) => ({
         url: "/admin/task/",

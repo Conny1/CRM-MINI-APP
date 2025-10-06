@@ -1,61 +1,63 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { addProjectType } from "../types";
-import { useAddProjectMutation } from "../redux/crm";
+import type { Task, TaskformInputType } from "../types";
+import { useUpdateTaskMutation } from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
-  dueDate: yup.string().required("Due date is required"),
-  startDate: yup.string().required("start date date"),
+  dueDate: yup.string().required("Start date is required"),
+  endDate: yup.string().default(null),
+  startDate: yup.string().required("Start date is required"),
+  project_id: yup.string().required("Linked contact is required"),
   status: yup.string().required("Status is required"),
 });
 
 type Props = {
   onClose: () => void;
+  initialData: Task;
 };
 
-export default function AddProject({ onClose }: Props) {
+export default function UpdateTask({ onClose, initialData }: Props) {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
-  } = useForm<addProjectType>({
+  } = useForm<TaskformInputType>({
     resolver: yupResolver(schema),
     defaultValues: {
-      title: "",
-      dueDate: "",
-      startDate: "",
-      status: "Pending",
+      ...initialData,
+      startDate: initialData.startDate?.split("T")[0],
+      endDate: initialData.startDate?.split("T")[0],
+      dueDate: initialData.startDate?.split("T")[0],
     },
   });
-  const [addProject, { isLoading: addProjectLoading }] =
-    useAddProjectMutation();
-  const onSubmit = (data: addProjectType) => {
+  const [updateTask, { isLoading: updateTaskLoading }] =
+    useUpdateTaskMutation();
+  const onSubmit = (data: TaskformInputType) => {
     let payload = {
       ...data,
-      user_id: "68c00b5fbac967739638d42e",
-      client_id: "68c00b5fbac967739638d42e",
-    };
-    addProject(payload)
+      user_id: initialData.user_id,
+      project_name: "Darnoc test project",
+      endDate: data.status === "Pending" ? "" : new Date().toISOString(),
+    } as Task;
+    updateTask(payload)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
-          toast.success("New project added");
+          toast.success("task updated");
         }
       })
       .catch((error) => {
         console.log(error);
         toast.error("Try again..");
-      })
-      .finally(() => reset());
+      });
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative">
         <button
           onClick={onClose}
@@ -64,15 +66,13 @@ export default function AddProject({ onClose }: Props) {
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold mb-6">
-          Add Project
-        </h2>
+        <h2 className="text-xl font-semibold mb-6">Edit Task</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className=" text-red-500 " >*</span>
+              Title
             </label>
             <input
               type="text"
@@ -83,14 +83,14 @@ export default function AddProject({ onClose }: Props) {
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
-
+          {/* Start Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date  <span className=" text-red-500 " >*</span>
+              Start Date
             </label>
             <input
               type="date"
-              {...register("startDate") }
+              {...register("startDate")}
               className="w-full border rounded-lg px-3 py-2"
             />
             {errors.startDate && (
@@ -101,7 +101,7 @@ export default function AddProject({ onClose }: Props) {
           {/* Due Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due Date  <span className=" text-red-500 " >*</span>
+              Due Date
             </label>
             <input
               type="date"
@@ -113,10 +113,29 @@ export default function AddProject({ onClose }: Props) {
             )}
           </div>
 
+          {/* project */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Linked Project
+            </label>
+            <select
+              {...register("project_id")}
+              className="w-full border rounded-lg px-3 py-2"
+            >
+              <option value="68c2d1fd6a857cbb5c8ae0c0">darnoc</option>
+              <option value="68c2d1fd6a857cbb5c8ae0c0">invoice</option>
+            </select>
+            {errors.project_id && (
+              <p className="text-red-500 text-sm">
+                {errors.project_id.message}
+              </p>
+            )}
+          </div>
+
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status   <span className=" text-red-500 " >*</span>
+              Status
             </label>
             <select
               {...register("status")}
@@ -124,8 +143,6 @@ export default function AddProject({ onClose }: Props) {
             >
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
-              <option value="InProgress">In progress</option>
-              <option value="Cancelled">Cancelled</option>
             </select>
             {errors.status && (
               <p className="text-red-500 text-sm">{errors.status.message}</p>
@@ -141,11 +158,11 @@ export default function AddProject({ onClose }: Props) {
               Cancel
             </button>
             <button
-              disabled={addProjectLoading}
               type="submit"
-              className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700    disabled:bg-gray-400 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-500 ease-in-out"
+              disabled={updateTaskLoading}
+              className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             >
-              {addProjectLoading ? "Loading..." : "Save "}
+              {updateTaskLoading ? "Loading..." : "Save"}
             </button>
           </div>
         </form>
