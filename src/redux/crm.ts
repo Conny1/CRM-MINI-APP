@@ -6,6 +6,8 @@ import type {
   findandfileter,
   Pagination,
   Project,
+  Stage,
+  Tag,
   Task,
   TaskformInputType,
 } from "../types";
@@ -161,6 +163,96 @@ export const crmApi = createApi({
         method: "DELETE",
       }),
     }),
+
+    // TAGS
+    findandFilterTags: builder.mutation<
+      { status: number; data: { results: Tag[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/tags/findandfilter",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    addTags: builder.mutation<
+      { status: number; data: { message: string } },
+      { user_id: string; title: string }
+    >({
+      query: (body) => ({
+        url: "/admin/tags/",
+        method: "POST",
+        body,
+      }),
+    }),
+    updateTags: builder.mutation<{ status: number; data: Tag }, Tag>({
+      query: (body) => ({
+        url: `/admin/tags/${body._id}`,
+        method: "PUT",
+        body,
+      }),
+    }),
+
+    getTagsByid: builder.query<{ status: number; data: Tag }, string>({
+      query: (id) => ({
+        url: `/admin/tags/${id}`,
+      }),
+    }),
+
+    deletetags: builder.query<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/tags/${id}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Client status | PIPELINE STAGES
+    // TAGS
+    findandFilterClientStatus: builder.mutation<
+      { status: number; data: { results: Tag[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/client-status/findandfilter",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    addClientStatus: builder.mutation<
+      { status: number; data: { message: string } },
+      { user_id: string; title: string }
+    >({
+      query: (body) => ({
+        url: "/admin/client-status/",
+        method: "POST",
+        body,
+      }),
+    }),
+    updateClientStatus: builder.mutation<
+      { status: number; data: Stage },
+      Stage
+    >({
+      query: (body) => ({
+        url: `/admin/client-status/${body._id}`,
+        method: "PUT",
+        body,
+      }),
+    }),
+
+    deleteClientStatus: builder.query<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/client-status/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -168,6 +260,7 @@ export const {
   useGetClientByidQuery,
   useAddClientMutation,
   useFindandFilterClientsMutation,
+  useUpdateClientMutation,
   useDeleteClientQuery,
   useAddProjectMutation,
   useUpdateProjectMutation,
@@ -179,4 +272,13 @@ export const {
   useGetTaskByidQuery,
   useFindandFilterTasksMutation,
   useUpdateTaskMutation,
+  useGetTagsByidQuery,
+  useUpdateTagsMutation,
+  useDeletetagsQuery,
+  useAddTagsMutation,
+  useFindandFilterTagsMutation,
+  useFindandFilterClientStatusMutation,
+  useDeleteClientStatusQuery,
+  useAddClientStatusMutation,
+  useUpdateClientStatusMutation
 } = crmApi;

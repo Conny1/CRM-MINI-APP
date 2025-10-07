@@ -73,8 +73,8 @@ export type Pipeline = {
   [stage: string]: CardItem[];
 };
 
-export type Stage = { id: string; name: string; stage: number };
-export type Tag = { id: string; name: string };
+export type Stage = { _id: string; title: string;};
+export type Tag = { _id: string; title: string };
 export type findandfileter = {
   sortBy: String;
   limit: number;

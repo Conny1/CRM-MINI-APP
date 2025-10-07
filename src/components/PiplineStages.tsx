@@ -1,0 +1,124 @@
+import { useEffect, useState } from "react";
+import type { findandfileter, Stage } from "../types";
+import {
+    useAddClientStatusMutation,
+  useFindandFilterClientStatusMutation,
+  useUpdateClientStatusMutation,
+} from "../redux/crm";
+import { toast } from "react-toastify";
+
+export default function PipelineStage() {
+  const [updateClientStatus] = useUpdateClientStatusMutation();
+  const [findandFilterClientStatus] = useFindandFilterClientStatusMutation();
+  const [addClientStatus, {isLoading:addLoading}] = useAddClientStatusMutation()
+  const [stages, setStages] = useState<Stage[]>([]);
+  const [newStage, setNewStage] = useState<string>("");
+
+  const [filters] = useState<findandfileter>({
+    sortBy: "_id:-1",
+    limit: 10,
+    page: 1,
+    search: "",
+    match_values: {},
+  });
+
+  useEffect(() => {
+    findandFilterClientStatus(filters).then((data) => {
+      const resp = data.data;
+      if (resp) setStages(resp?.data.results || []);
+    });
+  }, []);
+
+  const updateStage = (id: string, title: string) => {
+    const payload = { title, _id: id };
+
+    updateClientStatus(payload)
+      .then((resp) => {
+        if (resp.data?.status === 200) toast.success("Stage updated.");
+      })
+      .catch(() => toast.error("Try again.."));
+  };
+
+  // ✅ Add a new stage locally
+  const addStage = () => {
+       if (!newStage.trim()) return toast.error("Tag name required!");
+
+    const payload = { title: newStage.trim() , user_id:"68c00b5fbac967739638d42e" };
+    addClientStatus(payload)
+      .then((resp) => {
+        const created = resp.data?.data;
+        if (created) {
+          setNewStage("");
+          toast.success("stage added!");
+        } else {
+          toast.error("Could not create stage");
+        }
+      })
+      .catch(() => toast.error("Try again.."));
+  };
+
+
+
+  return (
+    <section className="bg-white rounded-2xl shadow-sm border p-8">
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        Pipeline Stages
+      </h2>
+      <p className="text-gray-500 mb-6">
+        Customize the sales stages your leads go through.
+      </p>
+
+      <div className="flex justify-between items-center mb-4">
+        <input
+          type="text"
+          placeholder="Enter new stage name"
+          value={newStage}
+          onChange={(e) => setNewStage(e.target.value)}
+          className="flex-1 mr-3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={addStage}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition"
+        >
+          + Add Stage
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {stages.map((stage) => (
+          <div
+            key={stage._id}
+            className="flex items-center gap-3 bg-gray-50 border rounded-lg px-4 py-3 hover:bg-gray-100 transition"
+          >
+            <input
+              type="text"
+              value={stage.title}
+              onChange={(e) => {
+                const value = e.target.value;
+                setStages((prev) =>
+                  prev.map((item) =>
+                    item._id === stage._id ? { ...item, title: value } : item
+                  )
+                );
+              }}
+              className="flex-1 px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            />
+
+            <button
+              onClick={() => updateStage(stage._id, stage.title)}
+              className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+            >
+              Save
+            </button>
+            <button
+            //   onClick={() => deleteStage(stage._id)}
+              className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 cursor-pointer"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
