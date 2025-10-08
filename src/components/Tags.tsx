@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import type { findandfileter, Tag } from "../types";
 import {
-    useAddTagsMutation,
-  useFindandFilterTagsMutation,
+  useAddTagsMutation,
+  useDeletetagsMutation,
+  useFindandFilterTagsQuery,
   useUpdateTagsMutation,
-
 } from "../redux/crm";
 import { toast } from "react-toastify";
 
 export default function Tags() {
-  const [findandFilterTags] = useFindandFilterTagsMutation();
   const [updateTags] = useUpdateTagsMutation();
-  const [addTag] = useAddTagsMutation(); 
+  const [addTag] = useAddTagsMutation();
   const [tags, setTags] = useState<Tag[]>([]);
   const [newTag, setNewTag] = useState(""); // 👈 for new tag input
   const [filters] = useState<findandfileter>({
@@ -21,22 +20,23 @@ export default function Tags() {
     search: "",
     match_values: {},
   });
-
+  const { data } = useFindandFilterTagsQuery(filters);
+const [ deleteTag ] = useDeletetagsMutation()
   useEffect(() => {
-    findandFilterTags(filters).then((data) => {
-      let resp = data.data;
-      if (data) {
-        setTags(resp?.data.results || []);
-      }
-    });
-  }, []);
+    if (data) {
+      setTags(data.data.results || []);
+    }
+  }, [data]);
 
   const updateTag = (id: string, title: string) => {
     let payload = { title, _id: id };
     updateTags(payload)
       .then((resp) => {
         let status = resp.data?.status;
-        if (status && status === 200) toast.success("Tag updated.");
+        if (status && status === 200) {
+          toast.success("Tag updated.");
+      
+        }
       })
       .catch(() => toast.error("Try again.."));
   };
@@ -44,7 +44,10 @@ export default function Tags() {
   const handleAddTag = () => {
     if (!newTag.trim()) return toast.error("Tag name required!");
 
-    const payload = { title: newTag.trim() , user_id:"68c00b5fbac967739638d42e" };
+    const payload = {
+      title: newTag.trim(),
+      user_id: "68c00b5fbac967739638d42e",
+    };
     addTag(payload)
       .then((resp) => {
         const created = resp.data?.data;
@@ -58,15 +61,21 @@ export default function Tags() {
       .catch(() => toast.error("Try again.."));
   };
 
-//   const handleDeleteTag = (id: string) => {
-//     if (!confirm("Delete this tag?")) return;
-//     deleteTag({ _id: id })
-//       .then(() => {
-//         setTags((prev) => prev.filter((t) => t._id !== id));
-//         toast.success("Tag deleted");
-//       })
-//       .catch(() => toast.error("Failed to delete tag"));
-//   };
+  const handleDeleteTag = (id:string) => {
+    if (id) {
+      deleteTag(id)
+        .then((resp) => {
+          let status = resp.data?.status;
+          if (status && status === 200) {
+            toast.success("tag deleted");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Try again..");
+        });
+    }
+  };
 
   return (
     <section className="bg-white rounded-2xl shadow-sm border p-8">
@@ -101,7 +110,7 @@ export default function Tags() {
               Save
             </button>
             <button
-            //   onClick={() => handleDeleteTag(tag._id)}
+                onClick={() => handleDeleteTag(tag._id)}
               className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800"
             >
               Delete

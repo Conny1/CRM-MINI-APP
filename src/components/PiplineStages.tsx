@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import type { findandfileter, Stage } from "../types";
 import {
     useAddClientStatusMutation,
-  useFindandFilterClientStatusMutation,
+  useDeleteClientStatusMutation,
+  useFindandFilterClientStatusQuery,
   useUpdateClientStatusMutation,
 } from "../redux/crm";
 import { toast } from "react-toastify";
 
 export default function PipelineStage() {
   const [updateClientStatus] = useUpdateClientStatusMutation();
-  const [findandFilterClientStatus] = useFindandFilterClientStatusMutation();
   const [addClientStatus, {isLoading:addLoading}] = useAddClientStatusMutation()
   const [stages, setStages] = useState<Stage[]>([]);
   const [newStage, setNewStage] = useState<string>("");
@@ -21,13 +21,14 @@ export default function PipelineStage() {
     search: "",
     match_values: {},
   });
+  const [deleteClientStatus] = useDeleteClientStatusMutation()
+  const {data} = useFindandFilterClientStatusQuery(filters);
 
   useEffect(() => {
-    findandFilterClientStatus(filters).then((data) => {
-      const resp = data.data;
-      if (resp) setStages(resp?.data.results || []);
-    });
-  }, []);
+
+      if (data) setStages(data?.data.results || []);
+    
+  }, [data]);
 
   const updateStage = (id: string, title: string) => {
     const payload = { title, _id: id };
@@ -39,7 +40,6 @@ export default function PipelineStage() {
       .catch(() => toast.error("Try again.."));
   };
 
-  // ✅ Add a new stage locally
   const addStage = () => {
        if (!newStage.trim()) return toast.error("Tag name required!");
 
@@ -57,7 +57,22 @@ export default function PipelineStage() {
       .catch(() => toast.error("Try again.."));
   };
 
+  const handleDeleteStage = (id:string)=>{
 
+      if (id) {
+      deleteClientStatus(id)
+        .then((resp) => {
+          let status = resp.data?.status;
+          if (status && status === 200) {
+            toast.success("stage deleted");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Try again..");
+        });
+    }
+  }
 
   return (
     <section className="bg-white rounded-2xl shadow-sm border p-8">
@@ -111,7 +126,7 @@ export default function PipelineStage() {
               Save
             </button>
             <button
-            //   onClick={() => deleteStage(stage._id)}
+              onClick={() => handleDeleteStage(stage._id)}
               className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 cursor-pointer"
             >
               Delete

@@ -1,3 +1,5 @@
+import { ToastContainer } from "react-toastify";
+
 type Props = {
   message: string;
   onCancel: () => void;
@@ -11,6 +13,7 @@ export default function ConfirmDeleteModal({
 }: Props) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <ToastContainer/>
       <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">
         <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
         <p className="text-sm text-gray-600 mb-6">{message}</p>

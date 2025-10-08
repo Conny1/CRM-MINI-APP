@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import type { findandfileter, Task } from "../types";
 import { AddTask, ConfirmDeleteModal, UpdateTask } from "../components";
-import { useFindandFilterTasksMutation, useUpdateTaskMutation } from "../redux/crm";
+import {
+  useDeletetaskMutation,
+  useFindandFilterTasksQuery,
+  useUpdateTaskMutation,
+} from "../redux/crm";
 import { toast } from "react-toastify";
 
 export default function Tasks() {
@@ -9,12 +13,6 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [deleteTask, setDeleteTask] = useState<Task | null>(null);
-  const [updateTask, ] =
-    useUpdateTaskMutation();
-
-  const [findandFilterTasks] = useFindandFilterTasksMutation();
-  const [search, setSearch] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
   const [filters, setfilters] = useState<findandfileter>({
     sortBy: "_id:-1",
     limit: 10,
@@ -23,38 +21,50 @@ export default function Tasks() {
     match_values: {},
   });
 
+  const [updateTask] = useUpdateTaskMutation();
+ const [ deleteTaskData ] = useDeletetaskMutation()
+  const {data, refetch} = useFindandFilterTasksQuery(filters);
+  const [search, setSearch] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
+
   useEffect(() => {
-    findandFilterTasks(filters).then((data) => {
-      let resp = data.data;
+    
       if (data) {
-        setTasks(resp?.data.results || []);
+        setTasks(data?.data.results || []);
       }
-    });
-  }, []);
+  
+  }, [data]);
 
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
-    findandFilterTasks(payload).then((data) => {
-      let resp = data.data;
-      if (data) {
-        setTasks(resp?.data.results || []);
-      }
-    });
+   refetch()
   };
 
   const handleDelete = () => {
     if (deleteTask) {
-      setTasks((prev) => prev.filter((t) => t._id !== deleteTask._id));
-      setDeleteTask(null);
+      deleteTaskData(deleteTask?._id as unknown as string)
+        .then((resp) => {
+          let status = resp.data?.status;
+          if (status && status === 200) {
+            toast.success("task deleted");
+            setTimeout(() => {
+              setDeleteTask(null);
+            }, 1500);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Try again..");
+        });
     }
   };
 
-  const updateTaskStatus = (status:"Pending" | "Completed", id:string) => {
+  const updateTaskStatus = (status: "Pending" | "Completed", id: string) => {
     let payload = {
       status,
-      _id:id,
-      endDate: status==="Pending"?"" : new Date().toISOString()
-    } 
+      _id: id,
+      endDate: status === "Pending" ? "" : new Date().toISOString(),
+    };
     updateTask(payload)
       .then((resp) => {
         let status = resp.data?.status;
@@ -79,7 +89,9 @@ export default function Tasks() {
           className="border rounded px-3 py-2 w-full"
           placeholder="Search by title"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>{  
+            filterandSearchProjects({...filters, search:e.target.value})
+            setSearch(e.target.value)}}
         />
 
         <select
@@ -87,12 +99,11 @@ export default function Tasks() {
           value={statusFilter}
           onChange={(e) => {
             let payload = filters;
+            let match_values ={}
             if (e.target.value !== "All") {
-              payload.match_values = { status: e.target.value };
-            } else {
-              payload.match_values = {};
+              match_values = { status: e.target.value };
             }
-            filterandSearchProjects(payload);
+            filterandSearchProjects({...payload, match_values});
             setStatusFilter(e.target.value);
           }}
         >
@@ -134,9 +145,13 @@ export default function Tasks() {
                 className="border-t hover:bg-gray-50 transition"
               >
                 <td className="p-3">{task?.title}</td>
-                <td className="p-3">{ task?.startDate &&  task.startDate.split("T")[0]}</td>
+                <td className="p-3">
+                  {task?.startDate && task.startDate.split("T")[0]}
+                </td>
 
-                <td className="p-3">{task?.dueDate &&  task?.dueDate?.split("T")[0]}</td>
+                <td className="p-3">
+                  {task?.dueDate && task?.dueDate?.split("T")[0]}
+                </td>
                 <td className="p-3">{task?.project_name}</td>
                 <td className="p-3">
                   <span
@@ -151,10 +166,16 @@ export default function Tasks() {
                 </td>
                 <td className="p-3 flex justify-end gap-2">
                   <button
-                  onClick={()=>updateTaskStatus(  task.status ==="Pending"?"Completed":"Pending", task._id  )}
-                  className="text-sm text-gray-600 hover:text-blue-600">
+                    onClick={() =>
+                      updateTaskStatus(
+                        task.status === "Pending" ? "Completed" : "Pending",
+                        task._id
+                      )
+                    }
+                    className="text-sm text-gray-600 hover:text-blue-600"
+                  >
                     {task.status === "Pending" ? "Mark Done" : "Mark Pending"}
-                  </button>   
+                  </button>
                   <button
                     onClick={() => {
                       setEditTask(task);

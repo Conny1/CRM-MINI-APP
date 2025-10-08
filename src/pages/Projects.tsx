@@ -2,18 +2,19 @@ import { useEffect, useState } from "react";
 import type { findandfileter, Project } from "../types";
 import { AddProject, ConfirmDeleteModal, UpdateProject } from "../components";
 import {
-  useFindandFilterProjectsMutation,
+  useDeleteProjectMutation,
+  useFindandFilterProjectsQuery,
   useUpdateProjectMutation,
 } from "../redux/crm";
 import { toast } from "react-toastify";
 
 export default function Projects() {
   const [updateProject] = useUpdateProjectMutation();
+  const [deleteProjectData] = useDeleteProjectMutation();
   const [Projects, setProjects] = useState<Project[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteProject, setDeleteProject] = useState<Project | null>(null);
-  const [findandFilterProjects] = useFindandFilterProjectsMutation();
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [filters, setfilters] = useState<findandfileter>({
@@ -23,35 +24,41 @@ export default function Projects() {
     search: "",
     match_values: {},
   });
+  const { data, refetch } = useFindandFilterProjectsQuery(filters);
 
   useEffect(() => {
-    findandFilterProjects(filters).then((data) => {
-      let resp = data.data;
-      if (data) {
-        setProjects(resp?.data.results || []);
-      }
-    });
-  }, [showForm]);
+    if (data) {
+      setProjects(data.data?.results || []);
+    }
+  }, [data]);
 
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
-    findandFilterProjects(payload).then((data) => {
-      let resp = data.data;
-      if (data) {
-        setProjects(resp?.data.results || []);
-      }
-    });
+    refetch();
   };
 
   const handleDelete = () => {
     if (deleteProject) {
-      setProjects((prev) => prev.filter((t) => t._id !== deleteProject._id));
+      deleteProjectData(deleteProject?._id as unknown as string)
+        .then((resp) => {
+          let status = resp.data?.status;
+          if (status && status === 200) {
+            toast.success("Client deleted");
+            setTimeout(() => {
+              setDeleteProject(null);
+            }, 1500);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Try again..");
+        });
       setDeleteProject(null);
     }
   };
 
   const markProjectasDone = (id: string) => {
-    let status:"Completed" = "Completed"
+    let status: "Completed" = "Completed";
     let payload = {
       status,
       _id: id,
@@ -80,7 +87,10 @@ export default function Projects() {
           className="border rounded px-3 py-2 w-full"
           placeholder="Search by title"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            filterandSearchProjects({ ...filters, search: e.target.value });
+            setSearch(e.target.value);
+          }}
         />
 
         <select
@@ -88,12 +98,11 @@ export default function Projects() {
           value={statusFilter}
           onChange={(e) => {
             let payload = filters;
+            let match_values = {};
             if (e.target.value !== "All") {
-              payload.match_values = { status: e.target.value };
-            } else {
-              payload.match_values = {};
+              match_values = { status: e.target.value };
             }
-            filterandSearchProjects(payload);
+            filterandSearchProjects({ ...payload, match_values });
             setStatusFilter(e.target.value);
           }}
         >

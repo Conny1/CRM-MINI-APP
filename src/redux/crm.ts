@@ -25,8 +25,9 @@ export const crmApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks"],
   endpoints: (builder) => ({
-    findandFilterClients: builder.mutation<
+    findandFilterClients: builder.query<
       { status: number; data: { results: Client[] } & Pagination },
       findandfileter
     >({
@@ -35,6 +36,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["Clients"],
     }),
 
     addClient: builder.mutation<
@@ -46,22 +48,25 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Clients"],
     }),
     updateClient: builder.mutation<{ status: number; data: Client }, Client>({
       query: (body) => ({
-        url: "/admin/client/",
+        url: `/admin/client/${body._id}`,
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["Clients"],
     }),
 
     getClientByid: builder.query<{ status: number; data: Client }, string>({
       query: (id) => ({
         url: `/admin/client/${id}`,
       }),
+      providesTags: ["Clients"],
     }),
 
-    deleteClient: builder.query<
+    deleteClientData: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -69,9 +74,10 @@ export const crmApi = createApi({
         url: `/admin/client/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Clients"],
     }),
     // Projects
-    findandFilterProjects: builder.mutation<
+    findandFilterProjects: builder.query<
       { status: number; data: { results: Project[] } & Pagination },
       findandfileter
     >({
@@ -80,6 +86,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["Projects"],
     }),
 
     addProject: builder.mutation<
@@ -91,6 +98,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Projects"],
     }),
     updateProject: builder.mutation<{ status: number; data: Project }, Project>(
       {
@@ -99,6 +107,7 @@ export const crmApi = createApi({
           method: "PUT",
           body,
         }),
+        invalidatesTags: ["Projects"],
       }
     ),
 
@@ -106,9 +115,10 @@ export const crmApi = createApi({
       query: (id) => ({
         url: `/admin/project/${id}`,
       }),
+      providesTags: ["Projects"],
     }),
 
-    deleteProject: builder.query<
+    deleteProject: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -116,10 +126,11 @@ export const crmApi = createApi({
         url: `/admin/project/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Projects"],
     }),
 
     // TASKS
-    findandFilterTasks: builder.mutation<
+    findandFilterTasks: builder.query<
       { status: number; data: { results: Task[] } & Pagination },
       findandfileter
     >({
@@ -128,6 +139,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["Tasks"],
     }),
 
     addTask: builder.mutation<
@@ -139,6 +151,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Tasks"],
     }),
     updateTask: builder.mutation<{ status: number; data: Task }, Task>({
       query: (body) => ({
@@ -146,15 +159,17 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["Tasks"],
     }),
 
     getTaskByid: builder.query<{ status: number; data: Task }, string>({
       query: (id) => ({
         url: `/admin/task/${id}`,
       }),
+      providesTags: ["Tasks"],
     }),
 
-    deletetask: builder.query<
+    deletetask: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -162,10 +177,11 @@ export const crmApi = createApi({
         url: `/admin/task/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Tasks"],
     }),
 
     // TAGS
-    findandFilterTags: builder.mutation<
+    findandFilterTags: builder.query<
       { status: number; data: { results: Tag[] } & Pagination },
       findandfileter
     >({
@@ -174,6 +190,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["Tags"],
     }),
 
     addTags: builder.mutation<
@@ -185,6 +202,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Tags"],
     }),
     updateTags: builder.mutation<{ status: number; data: Tag }, Tag>({
       query: (body) => ({
@@ -192,15 +210,17 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["Tags"],
     }),
 
     getTagsByid: builder.query<{ status: number; data: Tag }, string>({
       query: (id) => ({
         url: `/admin/tags/${id}`,
       }),
+      providesTags: ["Tags"],
     }),
 
-    deletetags: builder.query<
+    deletetags: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -208,11 +228,12 @@ export const crmApi = createApi({
         url: `/admin/tags/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Tags"],
     }),
 
     // Client status | PIPELINE STAGES
-    // TAGS
-    findandFilterClientStatus: builder.mutation<
+
+    findandFilterClientStatus: builder.query<
       { status: number; data: { results: Tag[] } & Pagination },
       findandfileter
     >({
@@ -221,6 +242,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["ClientStages"],
     }),
 
     addClientStatus: builder.mutation<
@@ -232,6 +254,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["ClientStages"],
     }),
     updateClientStatus: builder.mutation<
       { status: number; data: Stage },
@@ -242,9 +265,10 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["ClientStages"],
     }),
 
-    deleteClientStatus: builder.query<
+    deleteClientStatus: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -252,6 +276,7 @@ export const crmApi = createApi({
         url: `/admin/client-status/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["ClientStages"],
     }),
   }),
 });
@@ -259,26 +284,26 @@ export const crmApi = createApi({
 export const {
   useGetClientByidQuery,
   useAddClientMutation,
-  useFindandFilterClientsMutation,
+  useFindandFilterClientsQuery,
   useUpdateClientMutation,
-  useDeleteClientQuery,
+  useDeleteClientDataMutation,
   useAddProjectMutation,
   useUpdateProjectMutation,
-  useFindandFilterProjectsMutation,
+  useFindandFilterProjectsQuery,
   useGetProjectByidQuery,
-  useDeleteProjectQuery,
+  useDeleteProjectMutation,
   useAddTaskMutation,
-  useDeletetaskQuery,
+  useDeletetaskMutation,
   useGetTaskByidQuery,
-  useFindandFilterTasksMutation,
+  useFindandFilterTasksQuery,
   useUpdateTaskMutation,
   useGetTagsByidQuery,
   useUpdateTagsMutation,
-  useDeletetagsQuery,
+  useDeletetagsMutation,
   useAddTagsMutation,
-  useFindandFilterTagsMutation,
-  useFindandFilterClientStatusMutation,
-  useDeleteClientStatusQuery,
+  useFindandFilterTagsQuery,
+  useFindandFilterClientStatusQuery,
+  useDeleteClientStatusMutation,
   useAddClientStatusMutation,
-  useUpdateClientStatusMutation
+  useUpdateClientStatusMutation,
 } = crmApi;
