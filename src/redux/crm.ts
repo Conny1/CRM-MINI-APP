@@ -66,6 +66,13 @@ export const crmApi = createApi({
       providesTags: ["Clients"],
     }),
 
+    getClientNames: builder.query<{ status: number; data: Client[] }, void>({
+      query: () => ({
+        url: `/admin/client/list/names`,
+      }),
+      providesTags: ["Clients"],
+    }),
+
     deleteClientData: builder.mutation<
       { status: number; data: { message: string } },
       string
@@ -117,6 +124,15 @@ export const crmApi = createApi({
       }),
       providesTags: ["Projects"],
     }),
+
+    getProjectNames: builder.query<{ status: number; data: Project[] }, void>(
+      {
+        query: () => ({
+          url: "/admin/project/list/names",
+        }),
+        providesTags: ["Projects"],
+      }
+    ),
 
     deleteProject: builder.mutation<
       { status: number; data: { message: string } },
@@ -220,6 +236,13 @@ export const crmApi = createApi({
       providesTags: ["Tags"],
     }),
 
+    getTagsNames: builder.query<{ status: number; data: Tag[] }, void>({
+      query: () => ({
+        url: "/admin/tags/list/names",
+      }),
+      providesTags: ["Tags"],
+    }),
+
     deletetags: builder.mutation<
       { status: number; data: { message: string } },
       string
@@ -255,6 +278,16 @@ export const crmApi = createApi({
         body,
       }),
       invalidatesTags: ["ClientStages"],
+    }),
+
+    getClientStatusNames: builder.query<
+      { status: number; data: Stage[] },
+      void
+    >({
+      query: () => ({
+        url: `/admin/client-status/list/names`,
+      }),
+      providesTags: ["ClientStages"],
     }),
     updateClientStatus: builder.mutation<
       { status: number; data: Stage },
@@ -306,4 +339,8 @@ export const {
   useDeleteClientStatusMutation,
   useAddClientStatusMutation,
   useUpdateClientStatusMutation,
+  useGetClientStatusNamesQuery,
+  useGetTagsNamesQuery,
+  useGetProjectNamesQuery,
+  useGetClientNamesQuery,
 } = crmApi;

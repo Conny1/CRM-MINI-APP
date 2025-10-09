@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { Task, TaskformInputType } from "../types";
-import { useUpdateTaskMutation } from "../redux/crm";
+import { useGetProjectNamesQuery, useUpdateTaskMutation } from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
@@ -35,11 +35,12 @@ export default function UpdateTask({ onClose, initialData }: Props) {
   });
   const [updateTask, { isLoading: updateTaskLoading }] =
     useUpdateTaskMutation();
+  const { data: projectNames } = useGetProjectNamesQuery();
   const onSubmit = (data: TaskformInputType) => {
     let payload = {
       ...data,
       user_id: initialData.user_id,
-      project_name: "Darnoc test project",
+      project_name: projectNames?.data.find((item)=> item._id === data.project_id )?.title || "No project name", 
       endDate: data.status === "Pending" ? "" : new Date().toISOString(),
     } as Task;
     updateTask(payload)
@@ -113,22 +114,26 @@ export default function UpdateTask({ onClose, initialData }: Props) {
             )}
           </div>
 
-          {/* project */}
+
+          {/* projects */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Linked Project
+              Linked projects
             </label>
             <select
               {...register("project_id")}
               className="w-full border rounded-lg px-3 py-2"
             >
-              <option value="68c2d1fd6a857cbb5c8ae0c0">darnoc</option>
-              <option value="68c2d1fd6a857cbb5c8ae0c0">invoice</option>
+              {projectNames?.data.map((item) => {
+                return (
+                  <option key={item._id} value={item._id}>
+                    {item.title}
+                  </option>
+                );
+              })}
             </select>
             {errors.project_id && (
-              <p className="text-red-500 text-sm">
-                {errors.project_id.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.project_id.message}</p>
             )}
           </div>
 

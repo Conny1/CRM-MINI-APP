@@ -2,8 +2,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { addClient } from "../types";
-import { useAddClientMutation } from "../redux/crm";
+import {
+  useAddClientMutation,
+  useGetClientStatusNamesQuery,
+  useGetTagsNamesQuery,
+} from "../redux/crm";
 import { ToastContainer, toast } from "react-toastify";
+import { useState } from "react";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -25,9 +30,12 @@ export default function AddClientForm({ setshowForm }: Props) {
     formState: { errors },
   } = useForm<addClient>({ resolver: yupResolver(schema) });
   const [addClient, { isLoading: addClientLoading }] = useAddClientMutation();
+  const [tags, settags] = useState<string[]>([]);
+  const { data: tagsNames } = useGetTagsNamesQuery();
+  const { data: clientStatus } = useGetClientStatusNamesQuery();
 
   const onSubmit = (data: addClient) => {
-    let payload = { ...data, user_id: "68c00b5fbac967739638d42e" };
+    let payload = { ...data, tags, user_id: "68c00b5fbac967739638d42e" };
     addClient(payload)
       .then((resp) => {
         let status = resp.data?.status;
@@ -134,13 +142,13 @@ export default function AddClientForm({ setshowForm }: Props) {
               {...register("status")}
               className="w-full border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Prospect">Prospect</option>
-              <option value="Lead">Lead</option>
-              <option value="Won">Won</option>{" "}
-              <option value="Lost">Lost</option>
-              <option value="Contacted">Contacted</option>
+              {clientStatus?.data.map((item) => {
+                return (
+                  <option key={item._id} value={item.title}>
+                    {item.title}
+                  </option>
+                );
+              })}
             </select>
             {errors.status && (
               <p className="text-red-500 text-sm mt-1">
@@ -150,6 +158,52 @@ export default function AddClientForm({ setshowForm }: Props) {
           </div>
 
           {/* tags */}
+          <div className="space-y-4">
+                   <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tags 
+            </label>
+            {/* Selected Tags */}
+            <div className="flex flex-wrap gap-2">
+              {tags.length > 0 ? (
+                tags.map((item, i) => (
+                  <span
+                    key={i}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
+                  >
+                    {item}
+                    <button
+                      onClick={() =>
+                        settags((prev) => prev.filter((tag) => tag !== item))
+                      }
+                      className="text-blue-500 hover:text-blue-700 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-400 text-sm">No tags selected</span>
+              )}
+            </div>
+
+            {/* Available Tags */}
+            <div className="flex flex-wrap gap-2">
+              {tagsNames?.data?.map((item) => (
+                <button
+                  key={item._id}
+                  disabled={tags.includes(item.title)}
+                  onClick={() => settags((prev) => [...prev, item.title])}
+                  className={`px-3 py-1 rounded-full text-sm border transition-all duration-150 ${
+                    tags.includes(item.title)
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-white hover:bg-blue-50 text-gray-700 border-gray-300 hover:border-blue-400"
+                  }`}
+                >
+                  {item.title}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">

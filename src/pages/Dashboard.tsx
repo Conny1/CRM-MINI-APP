@@ -15,18 +15,7 @@ export default function Dashboard() {
       {/* Greeting */}
       <h1 className="text-2xl font-bold">Welcome back, Joel 👋</h1>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-white shadow rounded-xl p-4 text-center"
-          >
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className="text-xl font-bold text-blue-600">{s.value}</p>
-          </div>
-        ))}
-      </div>
+  
 
       {/* Pipeline */}
       <div>

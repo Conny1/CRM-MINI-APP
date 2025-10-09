@@ -2,8 +2,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { addClient, Client } from "../types";
-import {useUpdateClientMutation } from "../redux/crm";
+import {
+  useGetClientStatusNamesQuery,
+  useGetTagsNamesQuery,
+  useUpdateClientMutation,
+} from "../redux/crm";
 import { ToastContainer, toast } from "react-toastify";
+import { useState } from "react";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -16,10 +21,14 @@ const schema = yup.object().shape({
 type Props = {
   setshowForm: React.Dispatch<React.SetStateAction<boolean>>;
   initalData: Client;
-  setEditClient: React.Dispatch<React.SetStateAction<Client| null>>;
+  setEditClient: React.Dispatch<React.SetStateAction<Client | null>>;
 };
 
-export default function UpdateClient({ setshowForm, initalData, setEditClient }: Props) {
+export default function UpdateClient({
+  setshowForm,
+  initalData,
+  setEditClient,
+}: Props) {
   const {
     register,
     handleSubmit,
@@ -29,17 +38,19 @@ export default function UpdateClient({ setshowForm, initalData, setEditClient }:
     resolver: yupResolver(schema),
     defaultValues: initalData,
   });
-  const [updateClient, { isLoading: updateClientLoading }] = useUpdateClientMutation();
+  const [updateClient, { isLoading: updateClientLoading }] =
+    useUpdateClientMutation();
+  const { data: clientStatus } = useGetClientStatusNamesQuery();
+  const {data:tagsNames} = useGetTagsNamesQuery()
+  const [tags, settags] = useState<string[]> (initalData.tags || []);
 
   const onSubmit = (data: addClient) => {
-    let payload = data as Client
+    let payload = {...data, tags} as Client;
     updateClient(payload)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Client updated");
-          setshowForm(false)
-          setEditClient(null)
         }
       })
       .catch((error) => {
@@ -131,7 +142,6 @@ export default function UpdateClient({ setshowForm, initalData, setEditClient }:
               </p>
             )}
           </div>
-
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -141,13 +151,13 @@ export default function UpdateClient({ setshowForm, initalData, setEditClient }:
               {...register("status")}
               className="w-full border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Prospect">Prospect</option>
-              <option value="Lead">Lead</option>
-              <option value="Won">Won</option>{" "}
-              <option value="Lost">Lost</option>
-              <option value="Contacted">Contacted</option>
+              {clientStatus?.data.map((item) => {
+                return (
+                  <option key={item._id} value={item.title}>
+                    {item.title}
+                  </option>
+                );
+              })}
             </select>
             {errors.status && (
               <p className="text-red-500 text-sm mt-1">
@@ -157,14 +167,63 @@ export default function UpdateClient({ setshowForm, initalData, setEditClient }:
           </div>
 
           {/* tags */}
+           {/* tags */}
+          <div className="space-y-4">
+                   <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tags 
+            </label>
+            {/* Selected Tags */}
+            <div className="flex flex-wrap gap-2">
+              {tags.length > 0 ? (
+                tags.map((item, i) => (
+                  <span
+                    key={i}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
+                  >
+                    {item}
+                    <button
+                      onClick={(e) =>
+                        {e.preventDefault()
+                        settags((prev) => prev.filter((tag) => tag !== item))}
+                      }
+                      className="text-blue-500 hover:text-blue-700 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-400 text-sm">No tags selected</span>
+              )}
+            </div>
+
+            {/* Available Tags */}
+            <div className="flex flex-wrap gap-2">
+              {tagsNames?.data?.map((item) => (
+                <button
+                  key={item._id}
+                  disabled={tags.includes(item.title)}
+                  onClick={() => settags((prev) => [...prev, item.title])}
+                  className={`px-3 py-1 rounded-full text-sm border transition-all duration-150 ${
+                    tags.includes(item.title)
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-white hover:bg-blue-50 text-gray-700 border-gray-300 hover:border-blue-400"
+                  }`}
+                >
+                  {item.title}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
-              onClick={() =>{ 
-                setEditClient(null)
-                setshowForm(false)}}
+              onClick={() => {
+                setEditClient(null);
+                setshowForm(false);
+              }}
               className="px-4 py-2  rounded-lg border text-gray-600 hover:bg-gray-50"
             >
               Cancel

@@ -22,22 +22,20 @@ export default function Tasks() {
   });
 
   const [updateTask] = useUpdateTaskMutation();
- const [ deleteTaskData ] = useDeletetaskMutation()
-  const {data, refetch} = useFindandFilterTasksQuery(filters);
+  const [deleteTaskData] = useDeletetaskMutation();
+  const { data, refetch } = useFindandFilterTasksQuery(filters);
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
   useEffect(() => {
-    
-      if (data) {
-        setTasks(data?.data.results || []);
-      }
-  
+    if (data) {
+      setTasks(data?.data.results || []);
+    }
   }, [data]);
 
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
-   refetch()
+    refetch();
   };
 
   const handleDelete = () => {
@@ -89,9 +87,10 @@ export default function Tasks() {
           className="border rounded px-3 py-2 w-full"
           placeholder="Search by title"
           value={search}
-          onChange={(e) =>{  
-            filterandSearchProjects({...filters, search:e.target.value})
-            setSearch(e.target.value)}}
+          onChange={(e) => {
+            filterandSearchProjects({ ...filters, search: e.target.value });
+            setSearch(e.target.value);
+          }}
         />
 
         <select
@@ -99,11 +98,11 @@ export default function Tasks() {
           value={statusFilter}
           onChange={(e) => {
             let payload = filters;
-            let match_values ={}
+            let match_values = {};
             if (e.target.value !== "All") {
               match_values = { status: e.target.value };
             }
-            filterandSearchProjects({...payload, match_values});
+            filterandSearchProjects({ ...payload, match_values });
             setStatusFilter(e.target.value);
           }}
         >

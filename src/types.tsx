@@ -7,7 +7,6 @@ export interface Client {
   status?: "Prospect" | "Lead" | "Negotiation" | "Client" | "Lost" | string;
   tags?: string[];
   notes?: string[];
-  emails?: string[];
 }
 
 export type addClient = {
@@ -57,7 +56,7 @@ export interface addProjectType {
   title: string;
   dueDate: string;
   startDate:string,
-  client_id?:string,
+  client_id:string,
   status: string;
 }
 

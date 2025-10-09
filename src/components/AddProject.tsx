@@ -2,7 +2,10 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { addProjectType } from "../types";
-import { useAddProjectMutation } from "../redux/crm";
+import {
+  useAddProjectMutation,
+  useGetClientNamesQuery,
+} from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
@@ -10,6 +13,7 @@ const schema = yup.object().shape({
   dueDate: yup.string().required("Due date is required"),
   startDate: yup.string().required("start date date"),
   status: yup.string().required("Status is required"),
+  client_id:yup.string().required("Client name is required"),
 });
 
 type Props = {
@@ -29,15 +33,17 @@ export default function AddProject({ onClose }: Props) {
       dueDate: "",
       startDate: "",
       status: "Pending",
+      client_id:""
     },
   });
   const [addProject, { isLoading: addProjectLoading }] =
     useAddProjectMutation();
+  const { data: clientsNames } = useGetClientNamesQuery();
+
   const onSubmit = (data: addProjectType) => {
     let payload = {
       ...data,
       user_id: "68c00b5fbac967739638d42e",
-      client_id: "68c00b5fbac967739638d42e",
     };
     addProject(payload)
       .then((resp) => {
@@ -55,7 +61,7 @@ export default function AddProject({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative">
         <button
           onClick={onClose}
@@ -64,15 +70,13 @@ export default function AddProject({ onClose }: Props) {
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold mb-6">
-          Add Project
-        </h2>
+        <h2 className="text-xl font-semibold mb-6">Add Project</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className=" text-red-500 " >*</span>
+              Title <span className=" text-red-500 ">*</span>
             </label>
             <input
               type="text"
@@ -86,11 +90,11 @@ export default function AddProject({ onClose }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date  <span className=" text-red-500 " >*</span>
+              Start Date <span className=" text-red-500 ">*</span>
             </label>
             <input
               type="date"
-              {...register("startDate") }
+              {...register("startDate")}
               className="w-full border rounded-lg px-3 py-2"
             />
             {errors.startDate && (
@@ -101,7 +105,7 @@ export default function AddProject({ onClose }: Props) {
           {/* Due Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due Date  <span className=" text-red-500 " >*</span>
+              Due Date <span className=" text-red-500 ">*</span>
             </label>
             <input
               type="date"
@@ -113,10 +117,30 @@ export default function AddProject({ onClose }: Props) {
             )}
           </div>
 
+          {/* clients */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Linked Client <span className=" text-red-500 ">*</span>
+            </label>
+            <select
+              {...register("client_id")}
+              className="w-full border rounded-lg px-3 py-2"
+            >
+              {clientsNames?.data.map((item) => {
+                return <option key={item._id} value={item._id}>{item.name}</option>;
+              })}
+
+
+            </select>
+            {errors.client_id && (
+              <p className="text-red-500 text-sm">{errors.client_id.message}</p>
+            )}
+          </div>
+
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status   <span className=" text-red-500 " >*</span>
+              Status <span className=" text-red-500 ">*</span>
             </label>
             <select
               {...register("status")}

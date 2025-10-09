@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { Project } from "../types";
-import { useUpdateProjectMutation } from "../redux/crm";
+import { useGetClientNamesQuery, useUpdateProjectMutation } from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 const schema = yup.object().shape({
@@ -45,6 +45,7 @@ export default function UpdateProject({ onClose, initialData }: Props) {
   });
   const [updateProject, { isLoading: updateProjectLoading }] =
     useUpdateProjectMutation();
+  const { data: clientsNames } = useGetClientNamesQuery();
 
   const onSubmit = (data: ProjectInput) => {
     let payload = data as Project;
@@ -57,7 +58,6 @@ export default function UpdateProject({ onClose, initialData }: Props) {
         if (status && status === 200) {
           toast.success("project updated");
 
-          onClose();
         }
       })
       .catch((error) => {
@@ -135,6 +135,27 @@ export default function UpdateProject({ onClose, initialData }: Props) {
               {...register("endDate")}
               className="w-full border rounded-lg px-3 py-2"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Linked Client <span className=" text-red-500 ">*</span>
+            </label>
+            <select
+              {...register("client_id")}
+              className="w-full border rounded-lg px-3 py-2"
+            >
+              {clientsNames?.data.map((item) => {
+                return (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                );
+              })}
+            </select>
+            {errors.client_id && (
+              <p className="text-red-500 text-sm">{errors.client_id.message}</p>
+            )}
           </div>
           {/* Status */}
           <div>
