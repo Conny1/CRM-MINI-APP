@@ -45,7 +45,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Avatar Placeholder */}
             <div className="flex-shrink-0 w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-2xl">
-              {selectedClient?.name.charAt(0)  }
+              { selectedClient.name && selectedClient?.name.charAt(0)  }
             </div>
 
             {/* Info */}
@@ -80,7 +80,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {selectedClient?.tags.map((tag) => (
+                { selectedClient?.tags && selectedClient?.tags.map((tag) => (
                   <span
                     key={tag}
                     className="bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium px-3 py-1 rounded-full"

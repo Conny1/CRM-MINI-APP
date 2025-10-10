@@ -35,7 +35,7 @@ export default function AddClientForm({ setshowForm }: Props) {
   const { data: clientStatus } = useGetClientStatusNamesQuery();
 
   const onSubmit = (data: addClient) => {
-    let payload = { ...data, tags, user_id: "68c00b5fbac967739638d42e" };
+    let payload = { ...data, tags };
     addClient(payload)
       .then((resp) => {
         let status = resp.data?.status;

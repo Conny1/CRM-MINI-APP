@@ -73,6 +73,13 @@ export const crmApi = createApi({
       providesTags: ["Clients"],
     }),
 
+    clientPipelineData: builder.query<{ status: number; data:{ status:string , clients:Client[]}[] }, void>({
+      query: () => ({
+        url: `/admin/client/stage/pipeline`,
+      }),
+      providesTags: ["Clients", "ClientStages"],
+    }),
+
     deleteClientData: builder.mutation<
       { status: number; data: { message: string } },
       string
@@ -211,7 +218,7 @@ export const crmApi = createApi({
 
     addTags: builder.mutation<
       { status: number; data: { message: string } },
-      { user_id: string; title: string }
+      { title: string }
     >({
       query: (body) => ({
         url: "/admin/tags/",
@@ -270,7 +277,7 @@ export const crmApi = createApi({
 
     addClientStatus: builder.mutation<
       { status: number; data: { message: string } },
-      { user_id: string; title: string }
+      { title: string }
     >({
       query: (body) => ({
         url: "/admin/client-status/",
@@ -343,4 +350,5 @@ export const {
   useGetTagsNamesQuery,
   useGetProjectNamesQuery,
   useGetClientNamesQuery,
+  useClientPipelineDataQuery
 } = crmApi;

@@ -1,34 +1,53 @@
 import { useEffect, useState } from "react";
-import type { findandfileter, Stage } from "../types";
+import type { findandfileter, Pagination, Stage } from "../types";
 import {
-    useAddClientStatusMutation,
+  useAddClientStatusMutation,
   useDeleteClientStatusMutation,
   useFindandFilterClientStatusQuery,
   useUpdateClientStatusMutation,
 } from "../redux/crm";
 import { toast } from "react-toastify";
+import PaginationBtn from "./PaginationBtn";
 
 export default function PipelineStage() {
   const [updateClientStatus] = useUpdateClientStatusMutation();
-  const [addClientStatus, {isLoading:addLoading}] = useAddClientStatusMutation()
+  const [addClientStatus, { isLoading: addLoading }] =
+    useAddClientStatusMutation();
   const [stages, setStages] = useState<Stage[]>([]);
   const [newStage, setNewStage] = useState<string>("");
 
-  const [filters] = useState<findandfileter>({
-    sortBy: "_id:-1",
-    limit: 10,
+  const [paginationdata, setpaginationdata] = useState<Pagination>({
     page: 1,
+    limit: 4,
+    totalPages: 0,
+    totalResults: 0,
+  });
+  const [filters, setfilters] = useState<findandfileter>({
+    sortBy: "_id:-1",
+    limit: paginationdata.limit,
+    page: paginationdata.page,
     search: "",
     match_values: {},
   });
-  const [deleteClientStatus] = useDeleteClientStatusMutation()
-  const {data} = useFindandFilterClientStatusQuery(filters);
+  const [deleteClientStatus] = useDeleteClientStatusMutation();
+  const { data, refetch } = useFindandFilterClientStatusQuery(filters);
 
   useEffect(() => {
-
-      if (data) setStages(data?.data.results || []);
-    
+    if (data) {
+      setStages(data?.data.results || []);
+      setpaginationdata({
+        page: data.data.page || 0,
+        limit: data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
+    }
   }, [data]);
+
+     const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
 
   const updateStage = (id: string, title: string) => {
     const payload = { title, _id: id };
@@ -41,9 +60,9 @@ export default function PipelineStage() {
   };
 
   const addStage = () => {
-       if (!newStage.trim()) return toast.error("Tag name required!");
+    if (!newStage.trim()) return toast.error("Tag name required!");
 
-    const payload = { title: newStage.trim() , user_id:"68c00b5fbac967739638d42e" };
+    const payload = { title: newStage.trim() };
     addClientStatus(payload)
       .then((resp) => {
         const created = resp.data?.data;
@@ -57,9 +76,8 @@ export default function PipelineStage() {
       .catch(() => toast.error("Try again.."));
   };
 
-  const handleDeleteStage = (id:string)=>{
-
-      if (id) {
+  const handleDeleteStage = (id: string) => {
+    if (id) {
       deleteClientStatus(id)
         .then((resp) => {
           let status = resp.data?.status;
@@ -72,13 +90,11 @@ export default function PipelineStage() {
           toast.error("Try again..");
         });
     }
-  }
+  };
 
   return (
     <section className="bg-white rounded-2xl shadow-sm border p-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">
-        Pipeline Stages
-      </h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Pipeline Stages</h2>
       <p className="text-gray-500 mb-6">
         Customize the sales stages your leads go through.
       </p>
@@ -134,6 +150,7 @@ export default function PipelineStage() {
           </div>
         ))}
       </div>
+      <PaginationBtn setpaginationdata={setpaginationdata} paginationdata={paginationdata} refetch={nextPage} />
     </section>
   );
 }

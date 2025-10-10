@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { findandfileter, Task } from "../types";
-import { AddTask, ConfirmDeleteModal, UpdateTask } from "../components";
+import type { findandfileter, Pagination, Task } from "../types";
+import { AddTask, ConfirmDeleteModal, PaginationBtns, UpdateTask } from "../components";
 import {
   useDeletetaskMutation,
   useFindandFilterTasksQuery,
@@ -13,10 +13,16 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [deleteTask, setDeleteTask] = useState<Task | null>(null);
+  const [paginationdata, setpaginationdata] = useState<Pagination>({
+    page: 1,
+    limit: 4,
+    totalPages: 0,
+    totalResults: 0,
+  });
   const [filters, setfilters] = useState<findandfileter>({
     sortBy: "_id:-1",
-    limit: 10,
-    page: 1,
+    limit: paginationdata.limit,
+    page: paginationdata.page,
     search: "",
     match_values: {},
   });
@@ -30,9 +36,19 @@ export default function Tasks() {
   useEffect(() => {
     if (data) {
       setTasks(data?.data.results || []);
+       setpaginationdata({
+        page: data.data.page || 0,
+        limit: data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
     }
   }, [data]);
 
+   const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
     refetch();
@@ -203,6 +219,7 @@ export default function Tasks() {
           </tbody>
         </table>
       </div>
+      <PaginationBtns  paginationdata={paginationdata} setpaginationdata={setpaginationdata} refetch={nextPage}  />
 
       {/* Modals */}
       {showForm && !editTask && <AddTask onClose={() => setShowForm(false)} />}

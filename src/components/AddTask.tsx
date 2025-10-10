@@ -40,7 +40,6 @@ export default function AddTask({ onClose }: Props) {
   const onSubmit = (data: TaskformInputType) => {
     let payload = {
       ...data,
-      user_id: "68c00b5fbac967739638d42e",
       project_name: projectNames?.data.find((item)=>item._id ===data.project_id )?.title || "No title" ,
     };
     addTask(payload)

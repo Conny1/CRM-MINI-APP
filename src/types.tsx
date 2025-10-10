@@ -1,10 +1,10 @@
 export interface Client {
-  _id: number;
+  _id: string;
   name?: string;
   email?: string;
   phone?: string;
   company?: string;
-  status?: "Prospect" | "Lead" | "Negotiation" | "Client" | "Lost" | string;
+  status?: string;
   tags?: string[];
   notes?: string[];
 }
@@ -68,9 +68,8 @@ export type CardItem = {
   note: string;
 };
 
-export type Pipeline = {
-  [stage: string]: CardItem[];
-};
+export type Pipeline =  Record<string, CardItem[]>;
+
 
 export type Stage = { _id: string; title: string;};
 export type Tag = { _id: string; title: string };

@@ -1,13 +1,6 @@
-// import KanbanBoard from "../components/KanbanBoard";
 
 import { KanbanBoard, UpcomingTasks } from "../components";
 
-const stats = [
-  { label: "New Leads", value: 12 },
-  { label: "Deals Won", value: 5 },
-  { label: "Deals Lost", value: 3 },
-  { label: "Active Tasks", value: 7 },
-];
 
 export default function Dashboard() {
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Client, findandfileter } from "../types";
+import type { Client, findandfileter, Pagination } from "../types";
 import {
   AddClient,
   ClientDetails,
@@ -9,19 +9,25 @@ import {
 import {
   useDeleteClientDataMutation,
   useFindandFilterClientsQuery,
-
 } from "../redux/crm";
 import { toast } from "react-toastify";
+import PaginationBtn from "../components/PaginationBtn";
 
 export default function Clients() {
-    const [filters, setfilters] = useState<findandfileter>({
-    sortBy: "_id:-1",
-    limit: 10,
+   const [paginationdata, setpaginationdata] = useState<Pagination>({
     page: 1,
+    limit: 4,
+    totalPages: 0,
+    totalResults: 0,
+  });
+  const [filters, setfilters] = useState<findandfileter>({
+    sortBy: "_id:-1",
+    limit: paginationdata.limit,
+    page: paginationdata.page,
     search: "",
     match_values: {},
   });
-  const {data, refetch} = useFindandFilterClientsQuery(filters)
+  const { data, refetch } = useFindandFilterClientsQuery(filters);
   const [deleteClientData] = useDeleteClientDataMutation();
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -30,30 +36,41 @@ export default function Clients() {
   const [showForm, setshowForm] = useState(false);
   const [deleteClient, setdeleteClient] = useState<Client | null>(null);
   const [editClient, setEditClient] = useState<Client | null>(null);
-
+ 
 
   useEffect(() => {
- 
-      if (data) {
-        setClients(data?.data.results || []);
-      }
-
+    console.log(filters)
+    if (data) {
+      setClients(data?.data.results || []);
+      setpaginationdata({
+        page: data.data.page || 0,
+        limit:data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
+    }
   }, [data]);
+
+  const nextPage = (page:number)=>{
+    setfilters((prev)=>({...prev, page}))
+    refetch()
+
+  }
+
 
   const filterandSearchClients = (payload: findandfileter) => {
     setfilters(payload);
-    refetch()
-   
+    refetch();
   };
 
   const handleDelete = () => {
-    if(!deleteClient) return
+    if (!deleteClient) return;
     deleteClientData(deleteClient?._id as unknown as string)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Client deleted");
-          
+
           setTimeout(() => {
             setdeleteClient(null);
           }, 1500);
@@ -62,7 +79,6 @@ export default function Clients() {
       .catch((error) => {
         console.log(error);
         toast.error("Try again..");
-        
       });
   };
 
@@ -77,9 +93,10 @@ export default function Clients() {
           className="border rounded px-3 py-2 w-full"
           placeholder="Search by name, email, or company"
           value={search}
-          onChange={(e) =>{ 
-            filterandSearchClients({...filters, search:e.target.value})
-            setSearch(e.target.value)}}
+          onChange={(e) => {
+            filterandSearchClients({ ...filters, search: e.target.value });
+            setSearch(e.target.value);
+          }}
         />
 
         <select
@@ -87,11 +104,11 @@ export default function Clients() {
           value={statusFilter}
           onChange={(e) => {
             let payload = filters;
-            let match_values = {}
+            let match_values = {};
             if (e.target.value !== "All") {
-               match_values = { status: e.target.value };
-            } 
-            filterandSearchClients({...payload, match_values});
+              match_values = { status: e.target.value };
+            }
+            filterandSearchClients({ ...payload, match_values });
             setStatusFilter(e.target.value);
           }}
         >
@@ -167,8 +184,8 @@ export default function Clients() {
                   </button>
                   <button
                     onClick={(e) => {
-                      e.stopPropagation()
-                      setdeleteClient(client)
+                      e.stopPropagation();
+                      setdeleteClient(client);
                     }}
                     className="text-red-600 hover:text-red-800 font-medium transition"
                   >
@@ -180,6 +197,11 @@ export default function Clients() {
           </tbody>
         </table>
       </div>
+      <PaginationBtn
+        paginationdata={paginationdata}
+        setpaginationdata={setpaginationdata}
+        refetch={nextPage}
+      />
 
       {/* Client Detail Modal */}
       {selectedClient && (
@@ -200,11 +222,12 @@ export default function Clients() {
       )}
 
       {/* delete client */}
-      {(deleteClient ) && (
+      {deleteClient && (
         <ConfirmDeleteModal
           message={`Are you sure you want to delete "${deleteClient.name}"?`}
-          onCancel={() => {setdeleteClient(null)
-            setshowForm(false)
+          onCancel={() => {
+            setdeleteClient(null);
+            setshowForm(false);
           }}
           onConfirm={handleDelete}
         />

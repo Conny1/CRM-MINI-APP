@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { findandfileter, Tag } from "../types";
+import type { findandfileter, Pagination, Tag } from "../types";
 import {
   useAddTagsMutation,
   useDeletetagsMutation,
@@ -7,27 +7,44 @@ import {
   useUpdateTagsMutation,
 } from "../redux/crm";
 import { toast } from "react-toastify";
+import PaginationBtn from "./PaginationBtn";
 
 export default function Tags() {
   const [updateTags] = useUpdateTagsMutation();
   const [addTag] = useAddTagsMutation();
   const [tags, setTags] = useState<Tag[]>([]);
   const [newTag, setNewTag] = useState(""); // 👈 for new tag input
-  const [filters] = useState<findandfileter>({
-    sortBy: "_id:-1",
-    limit: 10,
-    page: 1,
-    search: "",
-    match_values: {},
-  });
-  const { data } = useFindandFilterTagsQuery(filters);
+    const [paginationdata, setpaginationdata] = useState<Pagination>({
+      page: 1,
+      limit: 4,
+      totalPages: 0,
+      totalResults: 0,
+    });
+    const [filters, setfilters] = useState<findandfileter>({
+      sortBy: "_id:-1",
+      limit: paginationdata.limit,
+      page: paginationdata.page,
+      search: "",
+      match_values: {},
+    });
+  const { data, refetch } = useFindandFilterTagsQuery(filters);
 const [ deleteTag ] = useDeletetagsMutation()
   useEffect(() => {
     if (data) {
       setTags(data.data.results || []);
+          setpaginationdata({
+        page: data.data.page || 0,
+        limit: data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
     }
   }, [data]);
 
+       const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
   const updateTag = (id: string, title: string) => {
     let payload = { title, _id: id };
     updateTags(payload)
@@ -46,7 +63,6 @@ const [ deleteTag ] = useDeletetagsMutation()
 
     const payload = {
       title: newTag.trim(),
-      user_id: "68c00b5fbac967739638d42e",
     };
     addTag(payload)
       .then((resp) => {
@@ -135,6 +151,8 @@ const [ deleteTag ] = useDeletetagsMutation()
           + Add Tag
         </button>
       </div>
+            <PaginationBtn setpaginationdata={setpaginationdata} paginationdata={paginationdata} refetch={nextPage} />
+      
     </section>
   );
 }

@@ -41,22 +41,20 @@ export default function AddProject({ onClose }: Props) {
   const { data: clientsNames } = useGetClientNamesQuery();
 
   const onSubmit = (data: addProjectType) => {
-    let payload = {
-      ...data,
-      user_id: "68c00b5fbac967739638d42e",
-    };
+    let payload = data
     addProject(payload)
       .then((resp) => {
         let status = resp.data?.status;
         if (status && status === 200) {
           toast.success("New project added");
+          reset()
         }
       })
       .catch((error) => {
         console.log(error);
         toast.error("Try again..");
       })
-      .finally(() => reset());
+  
   };
 
   return (
@@ -146,7 +144,7 @@ export default function AddProject({ onClose }: Props) {
               {...register("status")}
               className="w-full border rounded-lg px-3 py-2"
             >
-              <option value="Pending">Pending</option>
+              <option  value="Pending">Pending</option>
               <option value="Completed">Completed</option>
               <option value="InProgress">In progress</option>
               <option value="Cancelled">Cancelled</option>

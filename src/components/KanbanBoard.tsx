@@ -1,34 +1,46 @@
 // components/KanbanBoard.tsx
-import {
-  DndContext,
-  closestCenter,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useState } from "react";
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
+import { useEffect, useMemo, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import type { Pipeline } from "../types";
-
-const initialPipeline: Pipeline = {
-  Prospect: [
-    { id: "1", name: "Alice", company: "Acme Inc", note: "Follow-up email" },
-    { id: "2", name: "Bob", company: "Globex", note: "Waiting reply" },
-  ],
-  Contacted: [
-    { id: "3", name: "Carol", company: "Initech", note: "Demo booked" },
-  ],
-  Negotiation: [
-    { id: "4", name: "Dave", company: "Umbrella", note: "Pricing discussion" },
-  ],
-  Won: [],
-  Lost: [],
-};
+import type { Client, Pipeline } from "../types";
+import {
+  useClientPipelineDataQuery,
+  useUpdateClientMutation,
+} from "../redux/crm";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function KanbanBoard() {
-  const [pipeline, setPipeline] = useState<Pipeline>(initialPipeline);
+  const { data } = useClientPipelineDataQuery();
+  const [updateClient] = useUpdateClientMutation();
+  const initialData: Pipeline = useMemo(() => {
+    const grouped: Record<string, Client[]> = {};
+    if (!data?.data) return;
+    data?.data.forEach((item) => {
+      grouped[item.status] = item.clients;
+      
+    });
+    return grouped;
+  }, [data?.data]); //
+  const [pipeline, setPipeline] = useState<Pipeline>({});
+  useEffect(() => {
+    setPipeline(initialData); // groupedClients from useMemo
+
+  }, [initialData]);
+
+  const updateClientStatus = (id: string, status: string) => {
+    updateClient({ _id: id, status })
+      .then((resp) => {
+        let status = resp.data?.status;
+        if (status && status === 200) {
+          toast.success("pipeline updated");
+        }
+      })
+      .catch((error) => { 
+        console.log(error);
+        toast.error("Try again..");
+      });
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -40,6 +52,7 @@ export default function KanbanBoard() {
     if (fromCol !== toCol) {
       const item = pipeline[fromCol][Number(fromIndex)];
       if (!item) return;
+      updateClientStatus(item.id, toCol);
 
       setPipeline((prev) => {
         const newPipeline: Pipeline = { ...prev };
@@ -51,9 +64,11 @@ export default function KanbanBoard() {
       });
     }
   };
+  if(!pipeline) return
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <ToastContainer />
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {Object.entries(pipeline).map(([stage, items]) => (
           <SortableContext

@@ -39,8 +39,8 @@ export default function UpdateProject({ onClose, initialData }: Props) {
     defaultValues: {
       ...initialData,
       startDate: initialData.startDate?.split("T")[0],
-      endDate: initialData.startDate?.split("T")[0],
-      dueDate: initialData.startDate?.split("T")[0],
+      endDate: initialData.endDate?.split("T")[0],
+      dueDate: initialData.dueDate?.split("T")[0],
     },
   });
   const [updateProject, { isLoading: updateProjectLoading }] =

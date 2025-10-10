@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { findandfileter, Project } from "../types";
+import type { findandfileter, Pagination, Project } from "../types";
 import { AddProject, ConfirmDeleteModal, UpdateProject } from "../components";
 import {
   useDeleteProjectMutation,
@@ -7,6 +7,7 @@ import {
   useUpdateProjectMutation,
 } from "../redux/crm";
 import { toast } from "react-toastify";
+import PaginationBtn from "../components/PaginationBtn";
 
 export default function Projects() {
   const [updateProject] = useUpdateProjectMutation();
@@ -17,10 +18,16 @@ export default function Projects() {
   const [deleteProject, setDeleteProject] = useState<Project | null>(null);
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [paginationdata, setpaginationdata] = useState<Pagination>({
+    page: 1,
+    limit: 4,
+    totalPages: 0,
+    totalResults: 0,
+  });
   const [filters, setfilters] = useState<findandfileter>({
     sortBy: "_id:-1",
-    limit: 10,
-    page: 1,
+    limit: paginationdata.limit,
+    page: paginationdata.page,
     search: "",
     match_values: {},
   });
@@ -29,8 +36,19 @@ export default function Projects() {
   useEffect(() => {
     if (data) {
       setProjects(data.data?.results || []);
+      setpaginationdata({
+        page: data.data.page || 0,
+        limit: data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
     }
   }, [data]);
+
+  const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
 
   const filterandSearchProjects = (payload: findandfileter) => {
     setfilters(payload);
@@ -198,6 +216,7 @@ export default function Projects() {
           </tbody>
         </table>
       </div>
+        <PaginationBtn paginationdata={paginationdata} setpaginationdata={setpaginationdata} refetch={nextPage}  />
 
       {/* Modals */}
       {showForm && !editProject && (
