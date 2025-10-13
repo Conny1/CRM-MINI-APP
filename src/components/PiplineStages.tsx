@@ -80,7 +80,7 @@ export default function PipelineStage() {
     if (id) {
       deleteClientStatus(id)
         .then((resp) => {
-          let status = resp.data?.status;
+          const status = resp.data?.status;
           if (status && status === 200) {
             toast.success("stage deleted");
           }
@@ -108,10 +108,11 @@ export default function PipelineStage() {
           className="flex-1 mr-3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
+        disabled={addLoading}
           onClick={addStage}
           className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition"
         >
-          + Add Stage
+         { addLoading?"Loading..." :  " + Add Stage"}
         </button>
       </div>
 

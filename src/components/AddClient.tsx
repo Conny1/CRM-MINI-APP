@@ -35,10 +35,10 @@ export default function AddClientForm({ setshowForm }: Props) {
   const { data: clientStatus } = useGetClientStatusNamesQuery();
 
   const onSubmit = (data: addClient) => {
-    let payload = { ...data, tags };
+    const payload = { ...data, tags };
     addClient(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("New client created");
         }

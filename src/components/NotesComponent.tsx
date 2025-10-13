@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import AddNoteModal from "./AddNote";
 import NotesCard from "./NotesCard";
 import type { findandfileter, Notes, Pagination } from "../types";
-import { useDeleteNotesMutation, useFindandFilterNotesQuery } from "../redux/crm";
-import { toast } from "react-toastify";
+import {  useFindandFilterNotesQuery } from "../redux/crm";
 import PaginationBtn from "./PaginationBtn";
 
 
@@ -11,7 +10,6 @@ const NotesComponent = ({client_id}:{client_id:string}) => {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const [editNote, setEditNote] = useState<Notes | null>(null);
   const [notes, setNotes] = useState<Notes[] >([]);
-  const [deleteNote, setdeleteNote] = useState<Notes | null>(null)
 
   const [paginationdata, setpaginationdata] = useState<Pagination>({
       page: 1,
@@ -27,9 +25,8 @@ const NotesComponent = ({client_id}:{client_id:string}) => {
       match_values: {client_id},
     });
   
-    const [deleteNoteData] = useDeleteNotesMutation();
     const { data, refetch } = useFindandFilterNotesQuery(filters);
-    const [search, setSearch] = useState<string>("");
+    // const [search, setSearch] = useState<string>("");
   
     useEffect(() => {
       if (data) {
@@ -47,29 +44,12 @@ const NotesComponent = ({client_id}:{client_id:string}) => {
       setfilters((prev) => ({ ...prev, page }));
       refetch();
     };
-    const filterandSearchProjects = (payload: findandfileter) => {
-      setfilters(payload);
-      refetch();
-    };
+    // const filterandSearchNotes = (payload: findandfileter) => {
+    //   setfilters(payload);
+    //   refetch();
+    // };
   
-    const handleDelete = () => {
-      if (deleteNote) {
-        deleteNoteData(deleteNote?._id as unknown as string)
-          .then((resp) => {
-            let status = resp.data?.status;
-            if (status && status === 200) {
-              toast.success("note deleted");
-              setTimeout(() => {
-                setdeleteNote(null);
-              }, 1500);
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-            toast.error("Try again..");
-          });
-      }
-    };
+
 
 
 

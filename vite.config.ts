@@ -14,7 +14,7 @@ export default defineConfig({
       exposes: {
         "./CrmHome": "./src/components/CrmHome",
       },
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "react-redux", "@reduxjs/toolkit"],
     }),
   ],
   build: {

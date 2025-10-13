@@ -59,7 +59,7 @@ export default function Projects() {
     if (deleteProject) {
       deleteProjectData(deleteProject?._id as unknown as string)
         .then((resp) => {
-          let status = resp.data?.status;
+          const status = resp.data?.status;
           if (status && status === 200) {
             toast.success("Client deleted");
             setTimeout(() => {
@@ -76,15 +76,15 @@ export default function Projects() {
   };
 
   const markProjectasDone = (id: string) => {
-    let status: "Completed" = "Completed";
-    let payload = {
+    const status: "Completed" = "Completed" as const
+    const payload = {
       status,
       _id: id,
       endDate: new Date().toISOString(),
     };
     updateProject(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Project marked as done");
         }
@@ -115,7 +115,7 @@ export default function Projects() {
           className="border rounded px-3 py-2"
           value={statusFilter}
           onChange={(e) => {
-            let payload = filters;
+            const payload = filters;
             let match_values = {};
             if (e.target.value !== "All") {
               match_values = { status: e.target.value };

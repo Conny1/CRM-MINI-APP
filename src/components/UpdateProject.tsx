@@ -48,13 +48,13 @@ export default function UpdateProject({ onClose, initialData }: Props) {
   const { data: clientsNames } = useGetClientNamesQuery();
 
   const onSubmit = (data: ProjectInput) => {
-    let payload = data as Project;
+    const payload = data as Project;
     payload.endDate =
       data.status !== "Completed" ? "" : new Date().toISOString();
 
     updateProject(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("project updated");
 

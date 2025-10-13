@@ -73,11 +73,11 @@ export type Pipeline = Record<string, CardItem[]>;
 export type Stage = { _id: string; title: string };
 export type Tag = { _id: string; title: string };
 export type findandfileter = {
-  sortBy: String;
+  sortBy: string;
   limit: number;
   page: number;
-  search: String;
-  match_values: Object;
+  search: string;
+  match_values: object;
 };
 
 export type Pagination = {

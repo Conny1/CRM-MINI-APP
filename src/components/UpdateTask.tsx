@@ -37,7 +37,7 @@ export default function UpdateTask({ onClose, initialData }: Props) {
     useUpdateTaskMutation();
   const { data: projectNames } = useGetProjectNamesQuery();
   const onSubmit = (data: TaskformInputType) => {
-    let payload = {
+    const payload = {
       ...data,
       user_id: initialData.user_id,
       project_name: projectNames?.data.find((item)=> item._id === data.project_id )?.title || "No project name", 
@@ -45,7 +45,7 @@ export default function UpdateTask({ onClose, initialData }: Props) {
     } as Task;
     updateTask(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("task updated");
         }

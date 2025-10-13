@@ -41,10 +41,10 @@ export default function AddProject({ onClose }: Props) {
   const { data: clientsNames } = useGetClientNamesQuery();
 
   const onSubmit = (data: addProjectType) => {
-    let payload = data
+    const payload = data
     addProject(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("New project added");
           reset()

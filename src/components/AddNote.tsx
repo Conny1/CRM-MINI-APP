@@ -60,7 +60,7 @@ const AddNoteModal: React.FC<AddNoteModalProps> = ({
   const updatedata = (data: Notes) => {
     updateNotes(data)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("status changed");
         }
@@ -73,12 +73,12 @@ const AddNoteModal: React.FC<AddNoteModalProps> = ({
 
   const onSubmit = (data: NoteFormData) => {
     if (initialData && initialData?._id) {
-      let payload = { ...initialData, ...data };
+      const payload = { ...initialData, ...data };
       updatedata(payload);
     } else {
       addNote({ ...data, client_id })
         .then((resp) => {
-          let status = resp.data?.status;
+          const status = resp.data?.status;
           if (status && status === 200) {
             reset();
             toast.success("New note added");

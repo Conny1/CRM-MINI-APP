@@ -46,10 +46,10 @@ const [ deleteTag ] = useDeletetagsMutation()
     refetch();
   };
   const updateTag = (id: string, title: string) => {
-    let payload = { title, _id: id };
+    const payload = { title, _id: id };
     updateTags(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Tag updated.");
       
@@ -81,7 +81,7 @@ const [ deleteTag ] = useDeletetagsMutation()
     if (id) {
       deleteTag(id)
         .then((resp) => {
-          let status = resp.data?.status;
+          const status = resp.data?.status;
           if (status && status === 200) {
             toast.success("tag deleted");
           }

@@ -58,7 +58,7 @@ export default function Tasks() {
     if (deleteTask) {
       deleteTaskData(deleteTask?._id as unknown as string)
         .then((resp) => {
-          let status = resp.data?.status;
+          const status = resp.data?.status;
           if (status && status === 200) {
             toast.success("task deleted");
             setTimeout(() => {
@@ -74,14 +74,14 @@ export default function Tasks() {
   };
 
   const updateTaskStatus = (status: "Pending" | "Completed", id: string) => {
-    let payload = {
+    const payload = {
       status,
       _id: id,
       endDate: status === "Pending" ? "" : new Date().toISOString(),
     };
     updateTask(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("status changed");
         }
@@ -113,7 +113,7 @@ export default function Tasks() {
           className="border rounded px-3 py-2"
           value={statusFilter}
           onChange={(e) => {
-            let payload = filters;
+            const payload = filters;
             let match_values = {};
             if (e.target.value !== "All") {
               match_values = { status: e.target.value };

@@ -12,14 +12,15 @@ import type {
   Task,
   TaskformInputType,
 } from "../types";
+import type { RootState } from "./store";
 
 export const crmApi = createApi({
   reducerPath: "crmApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OGMwMGI1ZmJhYzk2NzczOTYzOGQ0MmUiLCJpYXQiOjE3NTc1OTcyNTh9.hBs8PY9jdogePqODqjU62EILdT5elXhMqfspp2Ui-p8";
+      const token = (getState() as RootState).token.value.access_token; // Access token from Redux state
+
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
@@ -336,7 +337,7 @@ export const crmApi = createApi({
 
     addNotes: builder.mutation<
       { status: number; data: { message: string } },
-      { title: string; content: string , client_id:string}
+      { title: string; content: string; client_id: string }
     >({
       query: (body) => ({
         url: "/admin/notes/",

@@ -20,7 +20,7 @@ const PaginationBtn = ({
         <button
           onClick={() => {
             setpaginationdata((prev) => {
-              let page = prev.page === 1 ? 1 : prev.page - 1;
+              const page = prev.page === 1 ? 1 : prev.page - 1;
               if (page === prev.page) return prev;
 
               refetch(page);
@@ -39,7 +39,7 @@ const PaginationBtn = ({
         <button
           onClick={() => {
             setpaginationdata((prev) => {
-              let page =
+              const page =
                 prev.page < prev.totalPages ? prev.page + 1 : prev.page;
               if (page === prev.page) return prev;
               refetch(page);

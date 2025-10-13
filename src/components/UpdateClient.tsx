@@ -45,10 +45,10 @@ export default function UpdateClient({
   const [tags, settags] = useState<string[]> (initalData.tags || []);
 
   const onSubmit = (data: addClient) => {
-    let payload = {...data, tags} as Client;
+    const payload = {...data, tags} as Client;
     updateClient(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Client updated");
         }

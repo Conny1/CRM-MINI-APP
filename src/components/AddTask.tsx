@@ -38,13 +38,13 @@ export default function AddTask({ onClose }: Props) {
     const { data: projectNames } = useGetProjectNamesQuery();
   
   const onSubmit = (data: TaskformInputType) => {
-    let payload = {
+    const payload = {
       ...data,
       project_name: projectNames?.data.find((item)=>item._id ===data.project_id )?.title || "No title" ,
     };
     addTask(payload)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("New task added");
         }

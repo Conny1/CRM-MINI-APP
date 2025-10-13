@@ -13,7 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 export default function KanbanBoard() {
   const { data } = useClientPipelineDataQuery();
   const [updateClient] = useUpdateClientMutation();
-  const initialData: Pipeline = useMemo(() => {
+  const initialData = useMemo(() => {
     const grouped: Record<string, Client[]> = {};
     if (!data?.data) return;
     data?.data.forEach((item) => {
@@ -24,14 +24,14 @@ export default function KanbanBoard() {
   }, [data?.data]); //
   const [pipeline, setPipeline] = useState<Pipeline>({});
   useEffect(() => {
-    setPipeline(initialData); // groupedClients from useMemo
+    setPipeline(initialData as unknown as Pipeline); // groupedClients from useMemo
 
   }, [initialData]);
 
   const updateClientStatus = (id: string, status: string) => {
     updateClient({ _id: id, status })
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("pipeline updated");
         }

@@ -39,7 +39,6 @@ export default function Clients() {
  
 
   useEffect(() => {
-    console.log(filters)
     if (data) {
       setClients(data?.data.results || []);
       setpaginationdata({
@@ -67,7 +66,7 @@ export default function Clients() {
     if (!deleteClient) return;
     deleteClientData(deleteClient?._id as unknown as string)
       .then((resp) => {
-        let status = resp.data?.status;
+        const status = resp.data?.status;
         if (status && status === 200) {
           toast.success("Client deleted");
 
@@ -103,7 +102,7 @@ export default function Clients() {
           className="border rounded px-3 py-2"
           value={statusFilter}
           onChange={(e) => {
-            let payload = filters;
+            const payload = filters;
             let match_values = {};
             if (e.target.value !== "All") {
               match_values = { status: e.target.value };
