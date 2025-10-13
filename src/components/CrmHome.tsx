@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import {
   Clients,
   Dashboard,
-  Intergrations,
   Projects,
   Settings,
   Tasks,
@@ -19,7 +18,6 @@ const CrmHome = ({ baseurl = "/" }: Props) => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/intergrations" element={<Intergrations />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/clients" element={<Clients />} />

@@ -23,40 +23,40 @@ export interface Task {
   _id: string;
   title?: string;
   dueDate?: string;
-  startDate?:string;
+  startDate?: string;
   status?: string;
-  project_name?:string,
-  user_id?:string,
-  project_id?:string,
-  endDate?:string
+  project_name?: string;
+  user_id?: string;
+  project_id?: string;
+  endDate?: string;
 }
 
 export interface Project {
   _id: string;
-  user_id?:string,
+  user_id?: string;
   title?: string;
   dueDate?: string;
-  endDate?:string,
-  startDate?:string,
-  client_id?:string,
-  status?: "Pending" | "Completed" |"InProgress" | "Cancelled";
+  endDate?: string;
+  startDate?: string;
+  client_id?: string;
+  status?: "Pending" | "Completed" | "InProgress" | "Cancelled";
 }
 
 export type TaskformInputType = {
   title: string;
-  dueDate: string ;
+  dueDate: string;
   project_id: string;
-  project_name?:string,
+  project_name?: string;
   startDate: string;
   status: string;
-  endDate: string ;
+  endDate: string;
 };
 export interface addProjectType {
-  user_id?:string,
+  user_id?: string;
   title: string;
   dueDate: string;
-  startDate:string,
-  client_id:string,
+  startDate: string;
+  client_id: string;
   status: string;
 }
 
@@ -68,10 +68,9 @@ export type CardItem = {
   note: string;
 };
 
-export type Pipeline =  Record<string, CardItem[]>;
+export type Pipeline = Record<string, CardItem[]>;
 
-
-export type Stage = { _id: string; title: string;};
+export type Stage = { _id: string; title: string };
 export type Tag = { _id: string; title: string };
 export type findandfileter = {
   sortBy: String;
@@ -86,4 +85,12 @@ export type Pagination = {
   limit: number;
   totalPages: number;
   totalResults: number;
+};
+
+export type Notes = {
+  client_id: string;
+  title: string;
+  createdAt: string;
+  content: string;
+  _id: string;
 };

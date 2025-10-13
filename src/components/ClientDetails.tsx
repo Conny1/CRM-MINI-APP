@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { Client, findandfileter, Project } from "../types";
 import { useFindandFilterProjectsQuery } from "../redux/crm";
+import NotesComponent from "./NotesComponent";
 
 type Props = {
   selectedClient: Client;
@@ -97,20 +98,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
               Notes
             </h3>
-            {selectedClient?.notes?.length > 0 ? (
-              <ul className="space-y-3">
-                {selectedClient?.notes.map((note, i) => (
-                  <li
-                    key={i}
-                    className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700"
-                  >
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-400 italic">No notes yet</p>
-            )}
+         <NotesComponent client_id={selectedClient._id} />
           </div>
 
           {/* Tasks Section */}

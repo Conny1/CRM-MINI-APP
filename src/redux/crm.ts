@@ -4,6 +4,7 @@ import type {
   addProjectType,
   Client,
   findandfileter,
+  Notes,
   Pagination,
   Project,
   Stage,
@@ -25,7 +26,7 @@ export const crmApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks"],
+  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks", "Notes"],
   endpoints: (builder) => ({
     findandFilterClients: builder.query<
       { status: number; data: { results: Client[] } & Pagination },
@@ -73,7 +74,10 @@ export const crmApi = createApi({
       providesTags: ["Clients"],
     }),
 
-    clientPipelineData: builder.query<{ status: number; data:{ status:string , clients:Client[]}[] }, void>({
+    clientPipelineData: builder.query<
+      { status: number; data: { status: string; clients: Client[] }[] },
+      void
+    >({
       query: () => ({
         url: `/admin/client/stage/pipeline`,
       }),
@@ -132,14 +136,12 @@ export const crmApi = createApi({
       providesTags: ["Projects"],
     }),
 
-    getProjectNames: builder.query<{ status: number; data: Project[] }, void>(
-      {
-        query: () => ({
-          url: "/admin/project/list/names",
-        }),
-        providesTags: ["Projects"],
-      }
-    ),
+    getProjectNames: builder.query<{ status: number; data: Project[] }, void>({
+      query: () => ({
+        url: "/admin/project/list/names",
+      }),
+      providesTags: ["Projects"],
+    }),
 
     deleteProject: builder.mutation<
       { status: number; data: { message: string } },
@@ -264,7 +266,7 @@ export const crmApi = createApi({
     // Client status | PIPELINE STAGES
 
     findandFilterClientStatus: builder.query<
-      { status: number; data: { results: Tag[] } & Pagination },
+      { status: number; data: { results: Stage[] } & Pagination },
       findandfileter
     >({
       query: (body) => ({
@@ -318,6 +320,51 @@ export const crmApi = createApi({
       }),
       invalidatesTags: ["ClientStages"],
     }),
+
+    // Notes
+    findandFilterNotes: builder.query<
+      { status: number; data: { results: Notes[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/notes/findandfilter",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Notes"],
+    }),
+
+    addNotes: builder.mutation<
+      { status: number; data: { message: string } },
+      { title: string; content: string , client_id:string}
+    >({
+      query: (body) => ({
+        url: "/admin/notes/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Notes"],
+    }),
+
+    updateNotes: builder.mutation<{ status: number; data: Notes }, Notes>({
+      query: (body) => ({
+        url: `/admin/notes/${body._id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Notes"],
+    }),
+
+    deleteNotes: builder.mutation<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/notes/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Notes"],
+    }),
   }),
 });
 
@@ -350,5 +397,9 @@ export const {
   useGetTagsNamesQuery,
   useGetProjectNamesQuery,
   useGetClientNamesQuery,
-  useClientPipelineDataQuery
+  useClientPipelineDataQuery,
+  useAddNotesMutation,
+  useUpdateNotesMutation,
+  useDeleteNotesMutation,
+  useFindandFilterNotesQuery,
 } = crmApi;
