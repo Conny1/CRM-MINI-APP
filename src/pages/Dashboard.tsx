@@ -1,5 +1,5 @@
 
-import { KanbanBoard, UpcomingTasks } from "../components";
+import { KanbanBoard } from "../components";
 
 
 export default function Dashboard() {
@@ -19,7 +19,6 @@ export default function Dashboard() {
          {/* Activity & Tasks */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       
-        <UpcomingTasks />
       </div>
     </div>
   );

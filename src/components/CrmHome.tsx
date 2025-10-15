@@ -1,27 +1,35 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import { Clients, Dashboard, Projects, Settings, Tasks } from "../pages";
+import { Clients, Dashboard, Settings } from "../pages";
 import Navbar from "./Nav";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { updateTokenData } from "../redux/token";
-import { store } from "../redux/store";
+import { loadTokensFromDB, updateTokenData } from "../redux/token";
+import { store, type AppDispatch, type RootState } from "../redux/store";
 type Props = {
   baseurl: string;
   tokens: { access_token: string; refresh_token: string; _id: string } | null;
 };
 
-const CrmHome = ({ baseurl = "/", tokens = null  }: Props) => {
+const CrmHome = ({ baseurl = "/", tokens = null }: Props) => {
   const Home = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
+    const { loaded } = useSelector((state: RootState) => state.token);
 
     useEffect(() => {
-      if (tokens) {
+      if (tokens && !loaded ) {
         dispatch(updateTokenData(tokens));
+        dispatch(loadTokensFromDB());
       }
-      dispatch(updateTokenData(tokens));
-    }, [tokens]);
+    }, [tokens, dispatch]);
 
     if (!tokens)
+      return (
+        <div>
+        
+          <p> Loading... </p>{" "}
+        </div>
+      );
+    if (!loaded)
       return (
         <div>
           {" "}
@@ -35,9 +43,7 @@ const CrmHome = ({ baseurl = "/", tokens = null  }: Props) => {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/tasks" element={<Tasks />} />
             <Route path="/clients" element={<Clients />} />
-            <Route path="/projects" element={<Projects />} />
           </Routes>
         </BrowserRouter>
       </div>

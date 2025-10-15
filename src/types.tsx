@@ -19,46 +19,6 @@ export type addClient = {
 
   // "tags":[String]
 };
-export interface Task {
-  _id: string;
-  title?: string;
-  dueDate?: string;
-  startDate?: string;
-  status?: string;
-  project_name?: string;
-  user_id?: string;
-  project_id?: string;
-  endDate?: string;
-}
-
-export interface Project {
-  _id: string;
-  user_id?: string;
-  title?: string;
-  dueDate?: string;
-  endDate?: string;
-  startDate?: string;
-  client_id?: string;
-  status?: "Pending" | "Completed" | "InProgress" | "Cancelled";
-}
-
-export type TaskformInputType = {
-  title: string;
-  dueDate: string;
-  project_id: string;
-  project_name?: string;
-  startDate: string;
-  status: string;
-  endDate: string;
-};
-export interface addProjectType {
-  user_id?: string;
-  title: string;
-  dueDate: string;
-  startDate: string;
-  client_id: string;
-  status: string;
-}
 
 // types.ts
 export type CardItem = {

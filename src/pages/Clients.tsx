@@ -9,12 +9,13 @@ import {
 import {
   useDeleteClientDataMutation,
   useFindandFilterClientsQuery,
+  useGetClientStatusNamesQuery,
 } from "../redux/crm";
 import { toast } from "react-toastify";
 import PaginationBtn from "../components/PaginationBtn";
 
 export default function Clients() {
-   const [paginationdata, setpaginationdata] = useState<Pagination>({
+  const [paginationdata, setpaginationdata] = useState<Pagination>({
     page: 1,
     limit: 4,
     totalPages: 0,
@@ -28,6 +29,8 @@ export default function Clients() {
     match_values: {},
   });
   const { data, refetch } = useFindandFilterClientsQuery(filters);
+  const { data: clientStatus, isLoading: statusLoading } =
+    useGetClientStatusNamesQuery();
   const [deleteClientData] = useDeleteClientDataMutation();
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -36,30 +39,27 @@ export default function Clients() {
   const [showForm, setshowForm] = useState(false);
   const [deleteClient, setdeleteClient] = useState<Client | null>(null);
   const [editClient, setEditClient] = useState<Client | null>(null);
- 
 
   useEffect(() => {
     if (data) {
       setClients(data?.data.results || []);
       setpaginationdata({
         page: data.data.page || 0,
-        limit:data.data.limit || 10,
+        limit: data.data.limit || 10,
         totalPages: data.data.totalPages || 0,
         totalResults: data.data.totalResults || 0,
       });
     }
   }, [data]);
 
-  const nextPage = (page:number)=>{
-    setfilters((prev)=>({...prev, page}))
-    refetch()
-
-  }
-
+  const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
 
   const filterandSearchClients = (payload: findandfileter) => {
     setfilters(payload);
-    refetch();
+    // refetch();
   };
 
   const handleDelete = () => {
@@ -112,8 +112,13 @@ export default function Clients() {
           }}
         >
           <option value="All">All</option>
-          <option value="Active">Active</option>
-          <option value="Prospect">Prospect</option>
+          { !statusLoading && clientStatus?.data.map((item) => {
+            return (
+              <option key={item._id} value={item.title}>
+                {item.title}
+              </option>
+            );
+          })}
         </select>
 
         <button
@@ -151,6 +156,7 @@ export default function Clients() {
                 <td className="px-4 py-3 font-medium text-gray-800">
                   {client.name}
                 </td>
+
                 <td className="px-4 py-3 text-gray-700">{client.email}</td>
                 <td className="px-4 py-3 text-gray-700">{client.phone}</td>
                 <td className="px-4 py-3 text-gray-700">{client.company}</td>

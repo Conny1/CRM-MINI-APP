@@ -1,32 +1,18 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import type {
   addClient,
-  addProjectType,
   Client,
   findandfileter,
   Notes,
   Pagination,
-  Project,
   Stage,
   Tag,
-  Task,
-  TaskformInputType,
-} from "../types";
-import type { RootState } from "./store";
+  } from "../types";
+import { baseQueryWithReauth } from "./customBaseQuery";
 
 export const crmApi = createApi({
   reducerPath: "crmApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).token.value.access_token; // Access token from Redux state
-
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks", "Notes"],
   endpoints: (builder) => ({
     findandFilterClients: builder.query<
@@ -95,117 +81,7 @@ export const crmApi = createApi({
       }),
       invalidatesTags: ["Clients"],
     }),
-    // Projects
-    findandFilterProjects: builder.query<
-      { status: number; data: { results: Project[] } & Pagination },
-      findandfileter
-    >({
-      query: (body) => ({
-        url: "/admin/project/findandfilter",
-        method: "POST",
-        body,
-      }),
-      providesTags: ["Projects"],
-    }),
-
-    addProject: builder.mutation<
-      { status: number; data: { message: string } },
-      addProjectType
-    >({
-      query: (body) => ({
-        url: "/admin/project/",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Projects"],
-    }),
-    updateProject: builder.mutation<{ status: number; data: Project }, Project>(
-      {
-        query: (body) => ({
-          url: `/admin/project/${body._id}`,
-          method: "PUT",
-          body,
-        }),
-        invalidatesTags: ["Projects"],
-      }
-    ),
-
-    getProjectByid: builder.query<{ status: number; data: Project }, string>({
-      query: (id) => ({
-        url: `/admin/project/${id}`,
-      }),
-      providesTags: ["Projects"],
-    }),
-
-    getProjectNames: builder.query<{ status: number; data: Project[] }, void>({
-      query: () => ({
-        url: "/admin/project/list/names",
-      }),
-      providesTags: ["Projects"],
-    }),
-
-    deleteProject: builder.mutation<
-      { status: number; data: { message: string } },
-      string
-    >({
-      query: (id) => ({
-        url: `/admin/project/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Projects"],
-    }),
-
-    // TASKS
-    findandFilterTasks: builder.query<
-      { status: number; data: { results: Task[] } & Pagination },
-      findandfileter
-    >({
-      query: (body) => ({
-        url: "/admin/task/findandfilter",
-        method: "POST",
-        body,
-      }),
-      providesTags: ["Tasks"],
-    }),
-
-    addTask: builder.mutation<
-      { status: number; data: { message: string } },
-      TaskformInputType
-    >({
-      query: (body) => ({
-        url: "/admin/task/",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Tasks"],
-    }),
-    updateTask: builder.mutation<{ status: number; data: Task }, Task>({
-      query: (body) => ({
-        url: `/admin/task/${body._id}`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: ["Tasks"],
-    }),
-
-    getTaskByid: builder.query<{ status: number; data: Task }, string>({
-      query: (id) => ({
-        url: `/admin/task/${id}`,
-      }),
-      providesTags: ["Tasks"],
-    }),
-
-    deletetask: builder.mutation<
-      { status: number; data: { message: string } },
-      string
-    >({
-      query: (id) => ({
-        url: `/admin/task/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Tasks"],
-    }),
-
+    
     // TAGS
     findandFilterTags: builder.query<
       { status: number; data: { results: Tag[] } & Pagination },
@@ -375,16 +251,6 @@ export const {
   useFindandFilterClientsQuery,
   useUpdateClientMutation,
   useDeleteClientDataMutation,
-  useAddProjectMutation,
-  useUpdateProjectMutation,
-  useFindandFilterProjectsQuery,
-  useGetProjectByidQuery,
-  useDeleteProjectMutation,
-  useAddTaskMutation,
-  useDeletetaskMutation,
-  useGetTaskByidQuery,
-  useFindandFilterTasksQuery,
-  useUpdateTaskMutation,
   useGetTagsByidQuery,
   useUpdateTagsMutation,
   useDeletetagsMutation,
@@ -396,7 +262,6 @@ export const {
   useUpdateClientStatusMutation,
   useGetClientStatusNamesQuery,
   useGetTagsNamesQuery,
-  useGetProjectNamesQuery,
   useGetClientNamesQuery,
   useClientPipelineDataQuery,
   useAddNotesMutation,

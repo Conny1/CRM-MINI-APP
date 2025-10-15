@@ -4,9 +4,6 @@ import { Link, useLocation } from "react-router"; // if you use react-router
 const navItems = [
   { name: "Dashboard", path: "/" },
   { name: "Clients", path: "/clients" },
-  { name: "Projects", path: "/projects" },
-  { name: "Tasks", path: "/tasks" },
-  { name: "Integrations", path: "/integrations" },
   { name: "Settings", path: "/settings" },
 ];
 
