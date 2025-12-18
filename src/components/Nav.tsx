@@ -5,6 +5,7 @@ const navItems = [
   { name: "Dashboard", path: "/" },
   { name: "Clients", path: "/clients" },
   { name: "Settings", path: "/settings" },
+  {name:"Reminders", path:"/reminders"}
 ];
 
 export default function Navbar() {

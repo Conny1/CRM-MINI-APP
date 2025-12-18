@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import { Clients, Dashboard, Settings } from "../pages";
+import { Clients, Dashboard, Reminders, Settings } from "../pages";
 import Navbar from "./Nav";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -44,6 +44,8 @@ const CrmHome = ({ baseurl = "/", tokens = null }: Props) => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/reminders" element={<Reminders />} />
+
           </Routes>
         </BrowserRouter>
       </div>

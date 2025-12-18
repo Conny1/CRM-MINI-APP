@@ -54,3 +54,30 @@ export type Notes = {
   content: string;
   _id: string;
 };
+
+export type ReminderPriority = "high" | "medium" | "low";
+
+export interface Reminder {
+  id: string;
+  clientId: string;
+  title: string;
+  description?: string;
+  dueDate: string;          // ISO date string (YYYY-MM-DD)
+  completed: boolean;
+  priority: ReminderPriority;
+
+  // Optional denormalized UI fields
+  clientName?: string;
+  companyName?: string;
+  clientStatus?:string
+}
+
+export interface addReminderType  {
+  
+  clientId: string;
+  title: string;
+  description?: string 
+  dueDate: string;          // ISO date string (YYYY-MM-DD)
+  priority: ReminderPriority;
+}
+
