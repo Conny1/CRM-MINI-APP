@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Client } from "../types";
 import NotesComponent from "./NotesComponent";
+import {
+  X,
+  Mail,
+  Phone,
+  Building,
+  Globe,
+  MapPin,
+  Calendar,
+  Edit2,
+  Download,
+  Share2,
+  User,
+  Briefcase,
+  Tag,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Star,
+} from "lucide-react";
 
 type Props = {
   selectedClient: Client;
@@ -8,84 +27,426 @@ type Props = {
 };
 
 const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedClient, setEditedClient] = useState(selectedClient);
 
+  const handleClose = () => {
+    setSelectedClient(null);
+  };
+
+  const handleSave = () => {
+    // Save logic here
+    setIsEditing(false);
+  };
+
+  const statusConfig = {
+    Active: { color: "bg-green-100 text-green-700", icon: CheckCircle },
+    Lead: { color: "bg-blue-100 text-blue-700", icon: Star },
+    Inactive: { color: "bg-gray-100 text-gray-700", icon: Clock },
+    "At Risk": { color: "bg-amber-100 text-amber-700", icon: AlertCircle },
+  };
+  type statusConfigKey = keyof typeof statusConfig
+
+  const StatusIcon = statusConfig[selectedClient.status as  statusConfigKey ]?.icon || CheckCircle;
+  const statusColor =
+    statusConfig[selectedClient.status as statusConfigKey ]?.color || "bg-gray-100 text-gray-700";
+
+  // Mock interaction data
+  const recentInteractions = [
+    {
+      id: 1,
+      type: "call",
+      title: "Discovery Call",
+      date: "Today, 10:30 AM",
+      duration: "30 mins",
+    },
+    {
+      id: 2,
+      type: "email",
+      title: "Proposal Sent",
+      date: "Yesterday, 2:15 PM",
+    },
+    {
+      id: 3,
+      type: "meeting",
+      title: "Product Demo",
+      date: "Feb 12, 11:00 AM",
+      duration: "45 mins",
+    },
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4  ">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-y-scroll flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Client Details
-          </h2>
-          <button
-            onClick={() => setSelectedClient(null)}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-8 overflow-y-auto">
-          {/* Profile Section */}
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            {/* Avatar Placeholder */}
-            <div className="flex-shrink-0 w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-2xl">
-              {selectedClient.name && selectedClient?.name.charAt(0)}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-white to-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                {selectedClient.name?.charAt(0) || "C"}
+              </div>
+              <div
+                className={`absolute -bottom-1 -right-1 p-1 rounded-full border-2 border-white ${
+                  statusColor.split(" ")[0]
+                }`}
+              >
+                <StatusIcon className="h-4 w-4" />
+              </div>
             </div>
-
-            {/* Info */}
-            <div className="flex-1">
-              <h3 className="text-2xl font-semibold text-gray-800">
-                {selectedClient.name}
-              </h3>
-              <p className="text-gray-600">{selectedClient.company}</p>
-
-              <div className="mt-3 space-y-1 text-gray-700 text-sm">
-                <p>
-                  <span className="font-medium">Email:</span>{" "}
-                  {selectedClient.email}
-                </p>
-                <p>
-                  <span className="font-medium">Phone:</span>{" "}
-                  {selectedClient.phone}
-                </p>
-                <p className="flex items-center gap-2">
-                  <span className="font-medium">Status:</span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      selectedClient.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {selectedClient.status}
-                  </span>
-                </p>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {selectedClient?.tags &&
-                  selectedClient?.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium px-3 py-1 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedClient.name}
+                    onChange={(e) =>
+                      setEditedClient({ ...editedClient, name: e.target.value })
+                    }
+                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
+                  />
+                ) : (
+                  selectedClient.name
+                )}
+              </h2>
+              <p className="text-gray-600 flex items-center gap-1 mt-1">
+                <Building className="h-4 w-4" />
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedClient.company}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        company: e.target.value,
+                      })
+                    }
+                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
+                  />
+                ) : (
+                  selectedClient.company
+                )}
+              </p>
             </div>
           </div>
 
-          {/* Notes Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-              Notes
-            </h3>
-            <NotesComponent client_id={selectedClient._id} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              <Edit2 className="h-4 w-4" />
+              {isEditing ? "Cancel" : "Edit"}
+            </button>
+            {isEditing && (
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                Save Changes
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-8">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-blue-50 rounded-xl p-4">
+                <p className="text-sm text-blue-600 font-medium">Total Value</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">$42,500</p>
+                <p className="text-xs text-blue-600 mt-1">+12% this quarter</p>
+              </div>
+              <div className="bg-green-50 rounded-xl p-4">
+                <p className="text-sm text-green-600 font-medium">Projects</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">3</p>
+                <p className="text-xs text-green-600 mt-1">2 active</p>
+              </div>
+              <div className="bg-purple-50 rounded-xl p-4">
+                <p className="text-sm text-purple-600 font-medium">
+                  Satisfaction
+                </p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">94%</p>
+                <p className="text-xs text-purple-600 mt-1">Very satisfied</p>
+              </div>
+              <div className="bg-amber-50 rounded-xl p-4">
+                <p className="text-sm text-amber-600 font-medium">
+                  Last Contact
+                </p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">2 days</p>
+                <p className="text-xs text-amber-600 mt-1">Follow up needed</p>
+              </div>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Client Info */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Contact Information */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-gray-600" />
+                    Contact Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-50 rounded-lg">
+                          <Mail className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Email</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedClient.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-green-50 rounded-lg">
+                          <Phone className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Phone</p>
+                          <p className="font-medium text-gray-900">
+                            {selectedClient.phone}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-purple-50 rounded-lg">
+                          <Globe className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Website</p>
+                          <p className="font-medium text-gray-900">
+                            brightlabs.com
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-amber-50 rounded-lg">
+                          <MapPin className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Location</p>
+                          <p className="font-medium text-gray-900">
+                            San Francisco, CA
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-gray-600" />
+                      Recent Activity
+                    </h3>
+                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                      View all
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {recentInteractions.map((interaction) => (
+                      <div
+                        key={interaction.id}
+                        className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-2 rounded-lg ${
+                              interaction.type === "call"
+                                ? "bg-blue-100 text-blue-600"
+                                : interaction.type === "email"
+                                ? "bg-green-100 text-green-600"
+                                : "bg-purple-100 text-purple-600"
+                            }`}
+                          >
+                            {interaction.type === "call" ? (
+                              <Phone className="h-4 w-4" />
+                            ) : interaction.type === "email" ? (
+                              <Mail className="h-4 w-4" />
+                            ) : (
+                              <Calendar className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {interaction.title}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {interaction.date}
+                            </p>
+                          </div>
+                        </div>
+                        {interaction.duration && (
+                          <span className="text-sm text-gray-500">
+                            {interaction.duration}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Notes Section */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Notes & Comments
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                        <Download className="h-4 w-4" />
+                      </button>
+                      <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                        <Share2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <NotesComponent client_id={selectedClient._id} />
+                </div>
+              </div>
+
+              {/* Right Column - Side Info */}
+              <div className="space-y-6">
+                {/* Status & Tags */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Details
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">
+                        Client Status
+                      </p>
+                      <div
+                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${statusColor}`}
+                      >
+                        <StatusIcon className="h-4 w-4" />
+                        <span className="font-medium">
+                          {selectedClient.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">Industry</p>
+                      <p className="font-medium text-gray-900">Technology</p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">Client Since</p>
+                      <p className="font-medium text-gray-900 flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-600" />
+                        January 2023
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Tag className="h-4 w-4" />
+                        Tags
+                      </p>
+                      <button className="text-xs text-blue-600 hover:text-blue-700">
+                        + Add
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedClient.tags?.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Quick Actions
+                  </h3>
+                  <div className="space-y-3">
+                    <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                      <Mail className="h-4 w-4" />
+                      Send Message
+                    </button>
+                    <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                      <Calendar className="h-4 w-4" />
+                      Schedule Meeting
+                    </button>
+                    <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                      <Briefcase className="h-4 w-4" />
+                      Create Project
+                    </button>
+                  </div>
+                </div>
+
+                {/* Key Contact */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Key Contact
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold">
+                      {selectedClient.name?.charAt(0) || "C"}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Sarah Johnson</p>
+                      <p className="text-sm text-gray-500">
+                        Director of Marketing
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        sarah.j@brightlabs.com
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Last updated: Today, 2:30 PM
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="text-sm text-gray-600 hover:text-gray-800">
+                Export PDF
+              </button>
+              <button className="text-sm text-gray-600 hover:text-gray-800">
+                Print
+              </button>
+              <button className="text-sm text-red-600 hover:text-red-700">
+                Archive Client
+              </button>
+            </div>
           </div>
         </div>
       </div>

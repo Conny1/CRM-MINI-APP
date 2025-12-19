@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 export interface Client {
   _id: string;
   name?: string;
@@ -79,5 +81,22 @@ export interface addReminderType  {
   description?: string 
   dueDate: string;          // ISO date string (YYYY-MM-DD)
   priority: ReminderPriority;
+}
+
+export interface Metric {
+  title: string;
+  value: string;
+  change: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+export interface Activity {
+  id: string;
+  type: 'call' | 'email' | 'meeting' | 'deal' | 'task';
+  user: string;
+  description: string;
+  time: string;
+  date: string;
 }
 
