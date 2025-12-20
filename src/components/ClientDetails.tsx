@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { Client } from "../types";
 import NotesComponent from "./NotesComponent";
 import {
@@ -20,6 +20,8 @@ import {
   AlertCircle,
   Star,
 } from "lucide-react";
+import UpdateClient from "./UpdateClient";
+import { useGetClientByidQuery } from "../redux/crm";
 
 type Props = {
   selectedClient: Client;
@@ -28,16 +30,12 @@ type Props = {
 
 const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedClient, setEditedClient] = useState(selectedClient);
-
+  const {data} =  useGetClientByidQuery(selectedClient._id)
   const handleClose = () => {
     setSelectedClient(null);
   };
+const clientDetails =useMemo(() =>  data?.data, [data])
 
-  const handleSave = () => {
-    // Save logic here
-    setIsEditing(false);
-  };
 
   const statusConfig = {
     Active: { color: "bg-green-100 text-green-700", icon: CheckCircle },
@@ -45,11 +43,13 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
     Inactive: { color: "bg-gray-100 text-gray-700", icon: Clock },
     "At Risk": { color: "bg-amber-100 text-amber-700", icon: AlertCircle },
   };
-  type statusConfigKey = keyof typeof statusConfig
+  type statusConfigKey = keyof typeof statusConfig;
 
-  const StatusIcon = statusConfig[selectedClient.status as  statusConfigKey ]?.icon || CheckCircle;
+  const StatusIcon =
+    statusConfig[clientDetails?.status as statusConfigKey]?.icon || CheckCircle;
   const statusColor =
-    statusConfig[selectedClient.status as statusConfigKey ]?.color || "bg-gray-100 text-gray-700";
+    statusConfig[clientDetails?.status as statusConfigKey]?.color ||
+    "bg-gray-100 text-gray-700";
 
   // Mock interaction data
   const recentInteractions = [
@@ -76,6 +76,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
   ];
 
   return (
+    
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col"
@@ -86,7 +87,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
-                {selectedClient.name?.charAt(0) || "C"}
+                {clientDetails?.name?.charAt(0) || "C"}
               </div>
               <div
                 className={`absolute -bottom-1 -right-1 p-1 rounded-full border-2 border-white ${
@@ -98,36 +99,12 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editedClient.name}
-                    onChange={(e) =>
-                      setEditedClient({ ...editedClient, name: e.target.value })
-                    }
-                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
-                  />
-                ) : (
-                  selectedClient.name
-                )}
+                {clientDetails?.name}
               </h2>
               <p className="text-gray-600 flex items-center gap-1 mt-1">
                 <Building className="h-4 w-4" />
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editedClient.company}
-                    onChange={(e) =>
-                      setEditedClient({
-                        ...editedClient,
-                        company: e.target.value,
-                      })
-                    }
-                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
-                  />
-                ) : (
-                  selectedClient.company
-                )}
+
+                {clientDetails?.company}
               </p>
             </div>
           </div>
@@ -140,14 +117,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
               <Edit2 className="h-4 w-4" />
               {isEditing ? "Cancel" : "Edit"}
             </button>
-            {isEditing && (
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-              >
-                Save Changes
-              </button>
-            )}
+         
             <button
               onClick={handleClose}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition"
@@ -207,7 +177,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
                         <div>
                           <p className="text-sm text-gray-500">Email</p>
                           <p className="font-medium text-gray-900">
-                            {selectedClient.email}
+                            {clientDetails?.email}
                           </p>
                         </div>
                       </div>
@@ -218,7 +188,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
                         <div>
                           <p className="text-sm text-gray-500">Phone</p>
                           <p className="font-medium text-gray-900">
-                            {selectedClient.phone}
+                            {clientDetails?.phone}
                           </p>
                         </div>
                       </div>
@@ -228,10 +198,10 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
                         <div className="p-2 bg-purple-50 rounded-lg">
                           <Globe className="h-4 w-4 text-purple-600" />
                         </div>
-                        <div>
+                        <div className="overflow-auto">
                           <p className="text-sm text-gray-500">Website</p>
-                          <p className="font-medium text-gray-900">
-                            brightlabs.com
+                          <p className="font-medium text-gray-900  ">
+                            {clientDetails?.website || "No website"}
                           </p>
                         </div>
                       </div>
@@ -242,7 +212,7 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
                         <div>
                           <p className="text-sm text-gray-500">Location</p>
                           <p className="font-medium text-gray-900">
-                            San Francisco, CA
+                            {clientDetails?.location || "Not provided."}
                           </p>
                         </div>
                       </div>
@@ -348,14 +318,17 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
 
                     <div>
                       <p className="text-sm text-gray-500 mb-2">Industry</p>
-                      <p className="font-medium text-gray-900">Technology</p>
+                      <p className="font-medium text-gray-900 uppercase ">
+                        {" "}
+                        {selectedClient?.industry || "None"}{" "}
+                      </p>
                     </div>
 
                     <div>
                       <p className="text-sm text-gray-500 mb-2">Client Since</p>
                       <p className="font-medium text-gray-900 flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-gray-600" />
-                        January 2023
+                        {selectedClient.createdAt?.split("T")[0]}
                       </p>
                     </div>
                   </div>
@@ -412,15 +385,18 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
                   </h3>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold">
-                      {selectedClient.name?.charAt(0) || "C"}
+                      {clientDetails?.name?.charAt(0) || "C"}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Sarah Johnson</p>
+                      <p className="font-medium text-gray-900">
+                        {" "}
+                        {clientDetails?.name}{" "}
+                      </p>
                       <p className="text-sm text-gray-500">
-                        Director of Marketing
+                        Client {/* //Director of Marketing */}
                       </p>
                       <p className="text-xs text-blue-600 mt-1">
-                        sarah.j@brightlabs.com
+                        {clientDetails?.email}
                       </p>
                     </div>
                   </div>
@@ -450,6 +426,13 @@ const ClientDetails = ({ selectedClient, setSelectedClient }: Props) => {
           </div>
         </div>
       </div>
+      {isEditing && clientDetails && (
+        <UpdateClient
+          
+          initalData={clientDetails as Client }
+          setshowForm={setIsEditing}
+        />
+      )}
     </div>
   );
 };

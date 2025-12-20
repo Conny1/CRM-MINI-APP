@@ -28,17 +28,24 @@ import {
   CreditCard,
   Briefcase,
   Check,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
-  email: yup.string().email("Invalid email format").required("Email is required"),
-  phone: yup.string()
+  email: yup
+    .string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  phone: yup
+    .string()
     .matches(/^[+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
     .required("Phone is required"),
   company: yup.string().required("Company is required"),
   status: yup.string().required("Status is required"),
+  website: yup.string().optional(),
+  location: yup.string().optional(),
+  industry: yup.string().optional(),
 });
 
 type Props = {
@@ -51,15 +58,16 @@ export default function AddClientForm({ setshowForm }: Props) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<addClient>({ 
+  } = useForm<addClient>({
     resolver: yupResolver(schema),
-    mode: "onChange"
+    mode: "onChange",
   });
-  
+
   const [addClient] = useAddClientMutation();
   const [tags, settags] = useState<string[]>([]);
   // const { data: tagsNames, isLoading: loadingTags } = useGetTagsNamesQuery();
-  const { data: clientStatus, isLoading: loadingStatus } = useGetClientStatusNamesQuery();
+  const { data: clientStatus, isLoading: loadingStatus } =
+    useGetClientStatusNamesQuery();
   const [customTag, setCustomTag] = useState("");
   const [activeTab, setActiveTab] = useState("basic");
 
@@ -67,7 +75,7 @@ export default function AddClientForm({ setshowForm }: Props) {
     try {
       const payload = { ...data, tags };
       const resp = await addClient(payload).unwrap();
-      
+
       if (resp.status === 200) {
         toast.success(
           <div className="flex items-center gap-2">
@@ -75,7 +83,7 @@ export default function AddClientForm({ setshowForm }: Props) {
             <span>Client created successfully!</span>
           </div>
         );
-        
+
         // Reset and close after success
         setTimeout(() => {
           reset();
@@ -96,7 +104,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
   const addCustomTag = () => {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
-      settags(prev => [...prev, customTag.trim()]);
+      settags((prev) => [...prev, customTag.trim()]);
       setCustomTag("");
     }
   };
@@ -109,13 +117,13 @@ export default function AddClientForm({ setshowForm }: Props) {
     "Tech",
     "Healthcare",
     "Finance",
-    "Education"
+    "Education",
   ];
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <ToastContainer />
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -143,21 +151,36 @@ export default function AddClientForm({ setshowForm }: Props) {
 
           {/* Progress Steps */}
           <div className="flex items-center justify-center mt-6 space-x-1">
-            <div className={`w-8 h-1 rounded-full ${activeTab === "basic" ? "bg-white" : "bg-white/30"}`}></div>
-            <div className={`w-8 h-1 rounded-full ${activeTab === "details" ? "bg-white" : "bg-white/30"}`}></div>
-            <div className={`w-8 h-1 rounded-full ${activeTab === "review" ? "bg-white" : "bg-white/30"}`}></div>
+            <div
+              className={`w-8 h-1 rounded-full ${
+                activeTab === "basic" ? "bg-white" : "bg-white/30"
+              }`}
+            ></div>
+            <div
+              className={`w-8 h-1 rounded-full ${
+                activeTab === "details" ? "bg-white" : "bg-white/30"
+              }`}
+            ></div>
+            <div
+              className={`w-8 h-1 rounded-full ${
+                activeTab === "review" ? "bg-white" : "bg-white/30"
+              }`}
+            ></div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-140px)]"
+        >
           {/* Form Navigation */}
           <div className="flex items-center gap-4 mb-6">
             <button
               type="button"
               onClick={() => setActiveTab("basic")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "basic" 
-                  ? "bg-blue-100 text-blue-700" 
+                activeTab === "basic"
+                  ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -167,8 +190,8 @@ export default function AddClientForm({ setshowForm }: Props) {
               type="button"
               onClick={() => setActiveTab("details")}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "details" 
-                  ? "bg-blue-100 text-blue-700" 
+                activeTab === "details"
+                  ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -180,7 +203,7 @@ export default function AddClientForm({ setshowForm }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-500" />
                 Full Name *
               </label>
@@ -190,7 +213,7 @@ export default function AddClientForm({ setshowForm }: Props) {
                   {...register("name")}
                   placeholder="John Doe"
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                    errors.name ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -215,7 +238,7 @@ export default function AddClientForm({ setshowForm }: Props) {
                   {...register("email")}
                   placeholder="john@example.com"
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
+                    errors.email ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -240,7 +263,7 @@ export default function AddClientForm({ setshowForm }: Props) {
                   {...register("phone")}
                   placeholder="+1 (555) 123-4567"
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.phone ? 'border-red-300' : 'border-gray-300'
+                    errors.phone ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -265,7 +288,7 @@ export default function AddClientForm({ setshowForm }: Props) {
                   {...register("company")}
                   placeholder="Acme Inc."
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.company ? 'border-red-300' : 'border-gray-300'
+                    errors.company ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -281,7 +304,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
           {/* Status */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <Shield className="h-4 w-4 text-gray-500" />
               Client Status *
             </label>
@@ -289,7 +312,7 @@ export default function AddClientForm({ setshowForm }: Props) {
               <select
                 {...register("status")}
                 className={`w-full border rounded-lg px-4 py-3 pl-10 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                  errors.status ? 'border-red-300' : 'border-gray-300'
+                  errors.status ? "border-red-300" : "border-gray-300"
                 }`}
                 disabled={loadingStatus}
               >
@@ -316,35 +339,40 @@ export default function AddClientForm({ setshowForm }: Props) {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-gray-500" />
                     Location
                   </label>
                   <input
+                    {...register("location")}
                     type="text"
                     placeholder="City, Country"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Globe className="h-4 w-4 text-gray-500" />
                     Website
                   </label>
                   <input
                     type="url"
+                    {...register("website")}
                     placeholder="https://example.com"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-gray-500" />
                   Industry
                 </label>
-                <select className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select
+                  {...register("industry")}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
                   <option value="">Select Industry</option>
                   <option value="technology">Technology</option>
                   <option value="finance">Finance</option>
@@ -363,7 +391,7 @@ export default function AddClientForm({ setshowForm }: Props) {
               Tags
               <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
-            
+
             {/* Selected Tags */}
             <div className="flex flex-wrap gap-2">
               {tags.length > 0 ? (
@@ -375,7 +403,9 @@ export default function AddClientForm({ setshowForm }: Props) {
                     {tag}
                     <button
                       type="button"
-                      onClick={() => settags(prev => prev.filter(t => t !== tag))}
+                      onClick={() =>
+                        settags((prev) => prev.filter((t) => t !== tag))
+                      }
                       className="text-blue-500 hover:text-blue-700 transition-colors"
                     >
                       <X className="h-3 w-3" />
@@ -383,7 +413,9 @@ export default function AddClientForm({ setshowForm }: Props) {
                   </span>
                 ))
               ) : (
-                <span className="text-gray-400 text-sm italic">No tags added yet</span>
+                <span className="text-gray-400 text-sm italic">
+                  No tags added yet
+                </span>
               )}
             </div>
 
@@ -396,7 +428,9 @@ export default function AddClientForm({ setshowForm }: Props) {
                     type="button"
                     key={tag}
                     disabled={tags.includes(tag)}
-                    onClick={() => !tags.includes(tag) && settags(prev => [...prev, tag])}
+                    onClick={() =>
+                      !tags.includes(tag) && settags((prev) => [...prev, tag])
+                    }
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
                       tags.includes(tag)
                         ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -418,7 +452,7 @@ export default function AddClientForm({ setshowForm }: Props) {
                   onChange={(e) => setCustomTag(e.target.value)}
                   placeholder="Add custom tag..."
                   className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyPress={(e) => e.key === 'Enter' && addCustomTag()}
+                  onKeyPress={(e) => e.key === "Enter" && addCustomTag()}
                 />
                 <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
@@ -439,7 +473,7 @@ export default function AddClientForm({ setshowForm }: Props) {
               <Sparkles className="h-4 w-4 text-blue-500" />
               <span>Fill in required fields marked with *</span>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -448,10 +482,14 @@ export default function AddClientForm({ setshowForm }: Props) {
               >
                 Cancel
               </button>
-              
+
               <button
                 type="button"
-                onClick={() => activeTab === "basic" ? setActiveTab("details") : handleSubmit(onSubmit)()}
+                onClick={() =>
+                  activeTab === "basic"
+                    ? setActiveTab("details")
+                    : handleSubmit(onSubmit)()
+                }
                 disabled={isSubmitting}
                 className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >

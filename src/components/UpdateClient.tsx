@@ -30,23 +30,30 @@ import {
   Save,
   History,
   BarChart,
-  Clock
+  Clock,
 } from "lucide-react";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
-  email: yup.string().email("Invalid email format").required("Email is required"),
-  phone: yup.string()
+  email: yup
+    .string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  phone: yup
+    .string()
     .matches(/^[+]?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
     .required("Phone is required"),
   company: yup.string().required("Company is required"),
   status: yup.string().required("Status is required"),
+  website: yup.string().optional(),
+  location: yup.string().optional(),
+  industry: yup.string().optional(),
 });
 
 type Props = {
   setshowForm: React.Dispatch<React.SetStateAction<boolean>>;
   initalData: Client;
-  setEditClient: React.Dispatch<React.SetStateAction<Client | null>>;
+  setEditClient?: React.Dispatch<React.SetStateAction<Client | null>>;
 };
 
 export default function UpdateClient({
@@ -63,31 +70,34 @@ export default function UpdateClient({
   } = useForm<addClient>({
     resolver: yupResolver(schema),
     defaultValues: initalData,
-    mode: "onChange"
+    mode: "onChange",
   });
-  
+
   const [updateClient] = useUpdateClientMutation();
-  const { data: clientStatus, isLoading: loadingStatus } = useGetClientStatusNamesQuery();
+  const { data: clientStatus, isLoading: loadingStatus } =
+    useGetClientStatusNamesQuery();
   // const { data: tagsNames, isLoading: loadingTags } = useGetTagsNamesQuery();
   const [tags, settags] = useState<string[]>(initalData.tags || []);
   const [customTag, setCustomTag] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>("");
-  
+
   // Watch form values for changes
   const currentValues = watch();
 
   useEffect(() => {
     // Simulate last updated time
     const now = new Date();
-    setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    setLastUpdated(
+      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
   }, []);
 
   const onSubmit = async (data: addClient) => {
     try {
       const payload = { ...data, tags, _id: initalData._id } as Client;
       const resp = await updateClient(payload).unwrap();
-      
+
       if (resp.status === 200) {
         toast.success(
           <div className="flex items-center gap-2">
@@ -95,10 +105,13 @@ export default function UpdateClient({
             <span>Client updated successfully!</span>
           </div>
         );
-        
+
         // Reset and close after success
+
         setTimeout(() => {
-          setEditClient(null);
+          if (setEditClient) {
+            setEditClient(null);
+          }
           setshowForm(false);
         }, 1500);
       }
@@ -115,13 +128,13 @@ export default function UpdateClient({
 
   const addCustomTag = () => {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
-      settags(prev => [...prev, customTag.trim()]);
+      settags((prev) => [...prev, customTag.trim()]);
       setCustomTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    settags(prev => prev.filter(tag => tag !== tagToRemove));
+    settags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const suggestedTags = [
@@ -132,7 +145,7 @@ export default function UpdateClient({
     "Tech",
     "Healthcare",
     "Finance",
-    "Education"
+    "Education",
   ];
 
   const statusColors: Record<string, string> = {
@@ -145,7 +158,7 @@ export default function UpdateClient({
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <ToastContainer />
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -166,7 +179,9 @@ export default function UpdateClient({
             <button
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
               onClick={() => {
-                setEditClient(null);
+                if (setEditClient) {
+                  setEditClient(null);
+                }
                 setshowForm(false);
               }}
             >
@@ -181,7 +196,9 @@ export default function UpdateClient({
             </div>
             <div>
               <p className="font-semibold">{initalData.name}</p>
-              <p className="text-amber-100 text-sm">{initalData.company} • {initalData.email}</p>
+              <p className="text-amber-100 text-sm">
+                {initalData.company} • {initalData.email}
+              </p>
             </div>
             <div className="ml-auto text-xs bg-white/20 px-3 py-1.5 rounded-full">
               <span className="flex items-center gap-1">
@@ -192,7 +209,10 @@ export default function UpdateClient({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)]"
+        >
           {/* Changes Indicator */}
           {isDirty && (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
@@ -202,7 +222,9 @@ export default function UpdateClient({
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-amber-800">Unsaved Changes</p>
-                  <p className="text-sm text-amber-600">You have made changes to this client profile</p>
+                  <p className="text-sm text-amber-600">
+                    You have made changes to this client profile
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -228,7 +250,7 @@ export default function UpdateClient({
                   type="text"
                   {...register("name")}
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                    errors.name ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -252,7 +274,7 @@ export default function UpdateClient({
                   type="email"
                   {...register("email")}
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
+                    errors.email ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -276,7 +298,7 @@ export default function UpdateClient({
                   type="tel"
                   {...register("phone")}
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.phone ? 'border-red-300' : 'border-gray-300'
+                    errors.phone ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -300,7 +322,7 @@ export default function UpdateClient({
                   type="text"
                   {...register("company")}
                   className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.company ? 'border-red-300' : 'border-gray-300'
+                    errors.company ? "border-red-300" : "border-gray-300"
                   }`}
                 />
                 <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -324,13 +346,17 @@ export default function UpdateClient({
               <select
                 {...register("status")}
                 className={`w-full border rounded-lg px-4 py-3 pl-10 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                  errors.status ? 'border-red-300' : 'border-gray-300'
+                  errors.status ? "border-red-300" : "border-gray-300"
                 }`}
                 disabled={loadingStatus}
               >
                 <option value="">Select a status</option>
                 {clientStatus?.data.map((item) => (
-                  <option key={item._id} value={item.title} selected={item.title === initalData.status}>
+                  <option
+                    key={item._id}
+                    value={item.title}
+                    selected={item.title === initalData.status}
+                  >
                     {item.title}
                   </option>
                 ))}
@@ -356,7 +382,11 @@ export default function UpdateClient({
               <BarChart className="h-4 w-4 text-gray-500" />
               Additional Information
             </span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`h-4 w-4 text-gray-500 transition-transform ${
+                showAdvanced ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
           {/* Advanced Fields */}
@@ -364,35 +394,40 @@ export default function UpdateClient({
             <div className="space-y-6 p-4 border border-gray-200 rounded-xl bg-gray-50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-gray-500" />
                     Location
                   </label>
                   <input
                     type="text"
+                    {...register("location")}
                     placeholder="City, Country"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Globe className="h-4 w-4 text-gray-500" />
                     Website
                   </label>
                   <input
                     type="url"
+                    {...register("website")}
                     placeholder="https://example.com"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-gray-500" />
                   Industry
                 </label>
-                <select className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select
+                  {...register("industry")}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
                   <option value="">Select Industry</option>
                   <option value="technology">Technology</option>
                   <option value="finance">Finance</option>
@@ -406,12 +441,12 @@ export default function UpdateClient({
 
           {/* Tags Section */}
           <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
               <Tag className="h-4 w-4 text-gray-500" />
               Tags
               <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
-            
+
             {/* Selected Tags */}
             <div className="flex flex-wrap gap-2">
               {tags.length > 0 ? (
@@ -431,7 +466,9 @@ export default function UpdateClient({
                   </span>
                 ))
               ) : (
-                <span className="text-gray-400 text-sm italic">No tags added yet</span>
+                <span className="text-gray-400 text-sm italic">
+                  No tags added yet
+                </span>
               )}
             </div>
 
@@ -444,7 +481,9 @@ export default function UpdateClient({
                     type="button"
                     key={tag}
                     disabled={tags.includes(tag)}
-                    onClick={() => !tags.includes(tag) && settags(prev => [...prev, tag])}
+                    onClick={() =>
+                      !tags.includes(tag) && settags((prev) => [...prev, tag])
+                    }
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all duration-200 ${
                       tags.includes(tag)
                         ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -466,7 +505,7 @@ export default function UpdateClient({
                   onChange={(e) => setCustomTag(e.target.value)}
                   placeholder="Add custom tag..."
                   className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyPress={(e) => e.key === 'Enter' && addCustomTag()}
+                  onKeyPress={(e) => e.key === "Enter" && addCustomTag()}
                 />
                 <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
@@ -505,21 +544,26 @@ export default function UpdateClient({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-200">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Sparkles className="h-4 w-4 text-amber-500" />
-              <span>Editing client: <span className="font-medium">{initalData.name}</span></span>
+              <span>
+                Editing client:{" "}
+                <span className="font-medium">{initalData.name}</span>
+              </span>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
-                  setEditClient(null);
+                  if (setEditClient) {
+                    setEditClient(null);
+                  }
                   setshowForm(false);
                 }}
                 className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
-              
+
               <button
                 type="submit"
                 disabled={isSubmitting || !isDirty}

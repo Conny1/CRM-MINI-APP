@@ -9,6 +9,10 @@ export interface Client {
   status?: string;
   tags?: string[];
   notes?: string[];
+  website?: string;
+  industry?: string;
+  location?: string;
+  createdAt?:string
 }
 
 export type addClient = {
@@ -18,6 +22,9 @@ export type addClient = {
   status: string;
   phone: string;
   company: string;
+  website?: string;
+  industry?: string;
+  location?: string;
 
   // "tags":[String]
 };
@@ -64,22 +71,21 @@ export interface Reminder {
   clientId: string;
   title: string;
   description?: string;
-  dueDate: string;          // ISO date string (YYYY-MM-DD)
+  dueDate: string; // ISO date string (YYYY-MM-DD)
   completed: boolean;
   priority: ReminderPriority;
 
   // Optional denormalized UI fields
   clientName?: string;
   companyName?: string;
-  clientStatus?:string
+  clientStatus?: string;
 }
 
-export interface addReminderType  {
-  
+export interface addReminderType {
   clientId: string;
   title: string;
-  description?: string 
-  dueDate: string;          // ISO date string (YYYY-MM-DD)
+  description?: string;
+  dueDate: string; // ISO date string (YYYY-MM-DD)
   priority: ReminderPriority;
 }
 
@@ -93,10 +99,9 @@ export interface Metric {
 
 export interface Activity {
   id: string;
-  type: 'call' | 'email' | 'meeting' | 'deal' | 'task';
+  type: "call" | "email" | "meeting" | "deal" | "task";
   user: string;
   description: string;
   time: string;
   date: string;
 }
-
