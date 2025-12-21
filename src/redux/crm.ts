@@ -1,10 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import type {
   addClient,
+  addReminderType,
   Client,
   findandfileter,
   Notes,
   Pagination,
+  Reminder,
   Stage,
   Tag,
   } from "../types";
@@ -13,7 +15,7 @@ import { baseQueryWithReauth } from "./customBaseQuery";
 export const crmApi = createApi({
   reducerPath: "crmApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks", "Notes"],
+  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks", "Notes", "Reminder"],
   endpoints: (builder) => ({
     findandFilterClients: builder.query<
       { status: number; data: { results: Client[] } & Pagination },
@@ -242,6 +244,51 @@ export const crmApi = createApi({
       }),
       invalidatesTags: ["Notes"],
     }),
+
+    // Reminders
+    findandFilterReminders: builder.query<
+      { status: number; data: { results: Reminder[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/reminder/findandfilter",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Reminder"],
+    }),
+
+    addReminder: builder.mutation<
+      { status: number; data: { message: string } },
+      addReminderType
+    >({
+      query: (body) => ({
+        url: "/admin/reminder/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Reminder"],
+    }),
+
+    updateReminder: builder.mutation<{ status: number; data: Reminder }, Reminder>({
+      query: (body) => ({
+        url: `/admin/reminder/${body._id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Reminder"],
+    }),
+
+    deleteReminder: builder.mutation<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/reminder/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Reminder"],
+    }),
   }),
 });
 
@@ -268,4 +315,9 @@ export const {
   useUpdateNotesMutation,
   useDeleteNotesMutation,
   useFindandFilterNotesQuery,
+  // reminder
+  useFindandFilterRemindersQuery,
+  useDeleteReminderMutation,
+  useAddReminderMutation,
+  useUpdateReminderMutation
 } = crmApi;

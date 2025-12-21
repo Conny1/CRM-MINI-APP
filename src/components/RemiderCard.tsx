@@ -1,6 +1,7 @@
 import { Calendar, Clock, User, Building, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import type { Reminder } from "../types";
+import UpdateReminder from "./updateReminder";
 
 type Props = {
   reminder: Reminder;
@@ -9,6 +10,7 @@ type Props = {
 
 const ReminderCard = ({ reminder, onToggleComplete }: Props) => {
   const [isCompleted, setIsCompleted] = useState(reminder.completed);
+  const [updateModal, setupdateModal] = useState(false)
 
   const priorityStyles = {
     high: {
@@ -61,7 +63,7 @@ const ReminderCard = ({ reminder, onToggleComplete }: Props) => {
   const handleToggleComplete = () => {
     setIsCompleted(!isCompleted);
     if (onToggleComplete) {
-      onToggleComplete(reminder.id);
+      onToggleComplete(reminder._id);
     }
   };
 
@@ -74,10 +76,10 @@ const ReminderCard = ({ reminder, onToggleComplete }: Props) => {
         transition-all duration-200
         ${isCompleted ? 'opacity-60' : ''}
         ${priority.bg} border-l-4 ${priority.text} border-l-current
-        hover:shadow-lg hover:scale-[1.01] active:scale-[0.995]
+      hover:shadow-lg hover:border-opacity-80 hover:bg-gray-200
         cursor-pointer
       `}
-      onClick={handleToggleComplete}
+      // onClick={handleToggleComplete}
     >
       <div className="flex items-start gap-4">
         {/* Checkbox */}
@@ -171,10 +173,11 @@ const ReminderCard = ({ reminder, onToggleComplete }: Props) => {
                 `}
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Handle view details
+                  
+                  setupdateModal(true)
                 }}
               >
-                View
+                Edit
               </button>
               
               <button 
@@ -219,6 +222,7 @@ const ReminderCard = ({ reminder, onToggleComplete }: Props) => {
           )}
         </div>
       </div>
+       { updateModal && <UpdateReminder initialData={reminder} onClose={()=>{ setupdateModal(false) }}  />  }
     </div>
   );
 };

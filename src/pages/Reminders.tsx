@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AddReminder, ReminderCard } from "../components";
-import type { Reminder } from "../types";
+import type { findandfileter, Pagination, Reminder } from "../types";
 import {
   Bell,
   Plus,
@@ -22,65 +22,28 @@ import {
   SortAsc,
   SortDesc
 } from "lucide-react";
+import { useFindandFilterRemindersQuery } from "../redux/crm";
 
-const mockReminders: Reminder[] = [
-  {
-    id: "1",
-    clientId: "1",
-    title: "Follow up on proposal",
-    description: "Check if Sarah has reviewed the website redesign proposal",
-    dueDate: "2024-02-15",
-    completed: false,
-    priority: "high",
-    clientName: "Sarah Johnson",
-    companyName: "Bright Labs",
-    clientStatus: "lead",
-    createdAt: "2024-02-10",
-  },
-  {
-    id: "2",
-    clientId: "4",
-    title: "Send contract",
-    description: "Prepare and send contract for MVP development",
-    dueDate: "2024-02-14",
-    completed: false,
-    priority: "high",
-    clientName: "Michael Lee",
-    companyName: "StartupX",
-    clientStatus: "active",
-    createdAt: "2024-02-09",
-  },
-  {
-    id: "3",
-    clientId: "2",
-    title: "Product demo session",
-    description: "Schedule and conduct product demo for TechCorp",
-    dueDate: "2024-02-20",
-    completed: false,
-    priority: "medium",
-    clientName: "Alex Chen",
-    companyName: "TechCorp",
-    clientStatus: "active",
-    createdAt: "2024-02-11",
-  },
-  {
-    id: "4",
-    clientId: "3",
-    title: "Quarterly review meeting",
-    description: "Prepare quarterly performance review presentation",
-    dueDate: "2024-02-25",
-    completed: true,
-    priority: "low",
-    clientName: "Emma Wilson",
-    companyName: "Innovate Co",
-    clientStatus: "active",
-    createdAt: "2024-02-05",
-  },
-];
 
 export default function Reminders() {
-  const [reminders, setReminders] = useState(mockReminders);
-  const [filteredReminders, setFilteredReminders] = useState(mockReminders);
+    const [paginationdata, setpaginationdata] = useState<Pagination>({
+      page: 1,
+      limit: 10,
+      totalPages: 0,
+      totalResults: 0,
+    });
+    
+    const [filters, setfilters] = useState<findandfileter>({
+      sortBy: "_id:-1",
+      limit: paginationdata.limit,
+      page: paginationdata.page,
+      search: "",
+      match_values: {},
+    });
+    
+    const { data, refetch, isLoading } = useFindandFilterRemindersQuery(filters);
+  // 
+  const [reminders, setReminders] = useState <Reminder[] | []> ([]);
   const [addremModal, setaddremModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
@@ -90,6 +53,7 @@ export default function Reminders() {
   const [showCompleted, setShowCompleted] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
+  
   // Stats
   const totalReminders = reminders.length;
   const completedReminders = reminders.filter(r => r.completed).length;
@@ -100,77 +64,30 @@ export default function Reminders() {
   ).length;
 
   useEffect(() => {
-    let filtered = [...reminders];
-
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(reminder =>
-        reminder.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reminder.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reminder.clientName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    if (data) {
+      setReminders(data?.data.results || []);
+      setpaginationdata({
+        page: data.data.page || 0,
+        limit: data.data.limit || 10,
+        totalPages: data.data.totalPages || 0,
+        totalResults: data.data.totalResults || 0,
+      });
     }
+  }, [data]);
 
-    // Apply priority filter
-    if (priorityFilter !== "all") {
-      filtered = filtered.filter(reminder => reminder.priority === priorityFilter);
-    }
+  const nextPage = (page: number) => {
+    setfilters((prev) => ({ ...prev, page }));
+    refetch();
+  };
 
-    // Apply status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(reminder => 
-        statusFilter === "completed" ? reminder.completed : !reminder.completed
-      );
-    }
-
-    // Apply completed filter
-    if (!showCompleted) {
-      filtered = filtered.filter(reminder => !reminder.completed);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
-      
-      switch (sortBy) {
-        case "date":
-          aValue = new Date(a.dueDate);
-          bValue = new Date(b.dueDate);
-          break;
-        case "priority":
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
-          aValue = priorityOrder[a.priority];
-          bValue = priorityOrder[b.priority];
-          break;
-        case "client":
-          aValue = a.clientName.toLowerCase();
-          bValue = b.clientName.toLowerCase();
-          break;
-        default:
-          aValue = new Date(a.dueDate);
-          bValue = new Date(b.dueDate);
-      }
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    setFilteredReminders(filtered);
-  }, [reminders, searchTerm, priorityFilter, statusFilter, showCompleted, sortBy, sortOrder]);
-
+  const filterandSearchClients = (payload: findandfileter) => {
+    setfilters(payload);
+  };
   const handleToggleComplete = (id: string) => {
-    setReminders(prev =>
-      prev.map(reminder =>
-        reminder.id === id ? { ...reminder, completed: !reminder.completed } : reminder
-      )
-    );
+    // update reminder to complete
   };
 
   const handleDeleteReminder = (id: string) => {
-    setReminders(prev => prev.filter(reminder => reminder.id !== id));
   };
 
   const clearFilters = () => {
@@ -254,7 +171,7 @@ export default function Reminders() {
               <p className="text-2xl font-bold text-gray-900 mt-1">{highPriority}</p>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
-              <AlertCircle className="h-6 w-6 text-red-600" />
+              <AlertCircle className="h-6 w-6 text-red-600" /> 
             </div>
           </div>
           <div className="mt-3">
@@ -388,7 +305,7 @@ export default function Reminders() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Your Reminders</h3>
               <p className="text-sm text-gray-600">
-                Showing {filteredReminders.length} of {reminders.length} reminders
+                Showing {paginationdata.limit} of {paginationdata.totalResults} reminders
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -407,7 +324,7 @@ export default function Reminders() {
 
           {/* Reminders Grid */}
           <div className="space-y-4">
-            {filteredReminders.length === 0 ? (
+            {reminders.length === 0 ? (
               <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-4">
                   <Bell className="h-8 w-8 text-gray-400" />
@@ -423,9 +340,9 @@ export default function Reminders() {
                 </button>
               </div>
             ) : (
-              filteredReminders.map((reminder) => (
+              reminders.map((reminder) => (
                 <ReminderCard 
-                  key={reminder.id} 
+                  key={reminder._id} 
                   reminder={reminder} 
                   onToggleComplete={handleToggleComplete}
                 />
@@ -447,7 +364,7 @@ export default function Reminders() {
                 .filter(r => !r.completed)
                 .slice(0, 3)
                 .map(reminder => (
-                  <div key={reminder.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div key={reminder._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div>
                       <p className="font-medium text-gray-900">{reminder.title}</p>
                       <p className="text-sm text-gray-500">{new Date(reminder.dueDate).toLocaleDateString()}</p>

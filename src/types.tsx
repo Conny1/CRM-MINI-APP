@@ -67,14 +67,15 @@ export type Notes = {
 export type ReminderPriority = "high" | "medium" | "low";
 
 export interface Reminder {
-  id: string;
-  clientId: string;
+  _id: string;
+  client_id: string;
   title: string;
   description?: string;
   dueDate: string; // ISO date string (YYYY-MM-DD)
   completed: boolean;
   priority: ReminderPriority;
-
+  createdAt:string
+  dueTime:string
   // Optional denormalized UI fields
   clientName?: string;
   companyName?: string;
@@ -82,11 +83,12 @@ export interface Reminder {
 }
 
 export interface addReminderType {
-  clientId: string;
+  client_id: string;
   title: string;
   description?: string;
   dueDate: string; // ISO date string (YYYY-MM-DD)
   priority: ReminderPriority;
+  dueTime:string
 }
 
 export interface Metric {
