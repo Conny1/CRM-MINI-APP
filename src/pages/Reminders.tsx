@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AddReminder, ReminderCard } from "../components";
+import { AddReminder, PaginationBtns, ReminderCard } from "../components";
 import type { findandfileter, Pagination, Reminder } from "../types";
 import {
   Bell,
@@ -22,7 +22,7 @@ import {
   SortAsc,
   SortDesc
 } from "lucide-react";
-import { useFindandFilterRemindersQuery } from "../redux/crm";
+import { useFindandFilterRemindersQuery, useGetReminderStatsQuery, useGetUpcomingDeadlineRemindersQuery } from "../redux/crm";
 
 
 export default function Reminders() {
@@ -42,6 +42,9 @@ export default function Reminders() {
     });
     
     const { data, refetch, isLoading } = useFindandFilterRemindersQuery(filters);
+    const { data:reminderStats } = useGetReminderStatsQuery()
+    const {data:upcomingDeadline } = useGetUpcomingDeadlineRemindersQuery()
+
   // 
   const [reminders, setReminders] = useState <Reminder[] | []> ([]);
   const [addremModal, setaddremModal] = useState(false);
@@ -80,15 +83,12 @@ export default function Reminders() {
     refetch();
   };
 
-  const filterandSearchClients = (payload: findandfileter) => {
+  const filterandSearchReminders = (payload: findandfileter) => {
     setfilters(payload);
   };
-  const handleToggleComplete = (id: string) => {
-    // update reminder to complete
-  };
 
-  const handleDeleteReminder = (id: string) => {
-  };
+
+  
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -134,7 +134,7 @@ export default function Reminders() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Reminders</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{totalReminders}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{ reminderStats?.data.counts.total }</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
               <Bell className="h-6 w-6 text-blue-600" />
@@ -151,7 +151,7 @@ export default function Reminders() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{pendingReminders}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{reminderStats?.data.counts.pending}</p>
             </div>
             <div className="p-3 bg-amber-50 rounded-lg">
               <Clock className="h-6 w-6 text-amber-600" />
@@ -168,7 +168,7 @@ export default function Reminders() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">High Priority</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{highPriority}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{reminderStats?.data.counts.highPriority}</p>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
               <AlertCircle className="h-6 w-6 text-red-600" /> 
@@ -185,7 +185,7 @@ export default function Reminders() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{overdueReminders}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{reminderStats?.data.counts.overdue}</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
               <BarChart className="h-6 w-6 text-purple-600" />
@@ -344,11 +344,15 @@ export default function Reminders() {
                 <ReminderCard 
                   key={reminder._id} 
                   reminder={reminder} 
-                  onToggleComplete={handleToggleComplete}
                 />
               ))
             )}
           </div>
+             <PaginationBtns
+                    paginationdata={paginationdata}
+                    setpaginationdata={setpaginationdata}
+                    refetch={nextPage}
+                  />
         </div>
 
         {/* Sidebar */}
@@ -360,9 +364,7 @@ export default function Reminders() {
               Upcoming Deadlines
             </h3>
             <div className="space-y-3">
-              {reminders
-                .filter(r => !r.completed)
-                .slice(0, 3)
+              {upcomingDeadline?.data
                 .map(reminder => (
                   <div key={reminder._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div>
@@ -382,29 +384,29 @@ export default function Reminders() {
           </div>
 
           {/* Performance Metrics */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
+         {reminderStats?.data && <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
             <h3 className="text-lg font-semibold mb-4">Completion Rate</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>Completed</span>
-                  <span className="font-semibold">{completedReminders}/{totalReminders}</span>
+                  <span className="font-semibold">{ reminderStats?.data.counts.completed  }/{reminderStats?.data.counts.total}</span>
                 </div>
                 <div className="h-2 bg-blue-500 rounded-full overflow-hidden">
-                  <div className="h-full bg-white rounded-full" style={{ width: `${(completedReminders / totalReminders) * 100}%` }}></div>
+                  <div className="h-full bg-white rounded-full" style={{ width: `${( reminderStats?.data.counts.completed as number / reminderStats?.data.counts.total as number) * 100}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>On Track</span>
-                  <span className="font-semibold">{pendingReminders - overdueReminders}/{pendingReminders}</span>
+                  <span className="font-semibold">{reminderStats?.data.counts.pending as number - reminderStats?.data.counts.overdue as  number }/{reminderStats?.data.counts.pending}</span>
                 </div>
                 <div className="h-2 bg-blue-500 rounded-full overflow-hidden">
-                  <div className="h-full bg-green-400 rounded-full" style={{ width: `${((pendingReminders - overdueReminders) / pendingReminders) * 100}%` }}></div>
+                  <div className="h-full bg-green-400 rounded-full" style={{ width: `${((reminderStats?.data.counts.pending - reminderStats?.data.counts.overdue) / reminderStats?.data.counts.pending) * 100}%` }}></div>
                 </div>
               </div>
             </div>
-          </div>
+          </div>}
 
           {/* Quick Stats */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -412,15 +414,15 @@ export default function Reminders() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Avg. Completion Time</span>
-                <span className="font-medium text-gray-900">2.3 days</span>
+                <span className="font-medium text-gray-900">{reminderStats?.data.avgCompletionTime} days</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Most Active Client</span>
-                <span className="font-medium text-gray-900">Bright Labs</span>
+                  <span className="font-medium text-gray-900"> {reminderStats?.data.mostActiveClient} </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Productivity Score</span>
-                <span className="font-medium text-green-600">87%</span>
+                <span className="font-medium text-green-600">{reminderStats?.data.productivityScore} %</span>
               </div>
             </div>
           </div>
@@ -441,19 +443,20 @@ export default function Reminders() {
           </div>
         </div>
       </div>
+       
 
       {/* Footer Stats */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-6">
             <div>
-              <span className="font-medium text-gray-900">{pendingReminders}</span> pending reminders
+              <span className="font-medium text-gray-900">{ reminderStats?.data.counts.pending   }</span> pending reminders
             </div>
             <div>
-              <span className="font-medium text-gray-900">{overdueReminders}</span> overdue
+              <span className="font-medium text-gray-900">{reminderStats?.data.counts.overdue }</span> overdue
             </div>
             <div>
-              <span className="font-medium text-gray-900">{highPriority}</span> high priority
+              <span className="font-medium text-gray-900">{reminderStats?.data.counts.highPriority }</span> high priority
             </div>
           </div>
           <div>

@@ -4,11 +4,14 @@ import type {
   addReminderType,
   Client,
   findandfileter,
+  Metric,
   Notes,
   Pagination,
   Reminder,
+  ReminderStats,
   Stage,
   Tag,
+  updateReminderType,
   } from "../types";
 import { baseQueryWithReauth } from "./customBaseQuery";
 
@@ -62,7 +65,16 @@ export const crmApi = createApi({
       }),
       providesTags: ["Clients"],
     }),
-
+  getClientStats: builder.query<
+      { status: number; data:  Metric[]  },
+      void
+    >({
+      query: () => ({
+        url: `/admin/client/stats`,
+        method: "GET",
+      }),
+      providesTags: ["Clients"],
+    }),
     clientPipelineData: builder.query<
       { status: number; data: { status: string; clients: Client[] }[] },
       void
@@ -270,7 +282,7 @@ export const crmApi = createApi({
       invalidatesTags: ["Reminder"],
     }),
 
-    updateReminder: builder.mutation<{ status: number; data: Reminder }, Reminder>({
+    updateReminder: builder.mutation<{ status: number; data: Reminder }, updateReminderType >({
       query: (body) => ({
         url: `/admin/reminder/${body._id}`,
         method: "PUT",
@@ -289,28 +301,81 @@ export const crmApi = createApi({
       }),
       invalidatesTags: ["Reminder"],
     }),
+
+     getReminderStats: builder.query<
+      { status: number; data:  ReminderStats  },
+      void
+    >({
+      query: () => ({
+        url: `/admin/reminder/stats`,
+        method: "GET",
+      }),
+      providesTags: ["Reminder"],
+    }),
+
+
+
+
+     markReminderCompleted: builder.mutation<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/reminder/complete/${id}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Reminder"],
+    }),
+
+     reOpenReminder: builder.mutation<
+      { status: number; data: { message: string } },
+      string
+    >({
+      query: (id) => ({
+        url: `/admin/reminder/reopen/${id}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Reminder"],
+    }),
+
+      getUpcomingDeadlineReminders: builder.query<
+      { status: number; data: Reminder[] },
+      void
+    >({
+      query: () => ({
+        url: '/admin/reminder/upcoming/deadlines',
+        method: "GET",
+      }),
+      providesTags: ["Reminder"],
+    }),
   }),
 });
 
 export const {
+  // client
   useGetClientByidQuery,
   useAddClientMutation,
   useFindandFilterClientsQuery,
   useUpdateClientMutation,
   useDeleteClientDataMutation,
+  useGetClientNamesQuery,
+  useGetClientStatsQuery,
+  // tags
   useGetTagsByidQuery,
   useUpdateTagsMutation,
   useDeletetagsMutation,
   useAddTagsMutation,
   useFindandFilterTagsQuery,
+    useGetTagsNamesQuery,
+
+  // clientStatus
   useFindandFilterClientStatusQuery,
   useDeleteClientStatusMutation,
   useAddClientStatusMutation,
   useUpdateClientStatusMutation,
   useGetClientStatusNamesQuery,
-  useGetTagsNamesQuery,
-  useGetClientNamesQuery,
   useClientPipelineDataQuery,
+  // Notes
   useAddNotesMutation,
   useUpdateNotesMutation,
   useDeleteNotesMutation,
@@ -319,5 +384,9 @@ export const {
   useFindandFilterRemindersQuery,
   useDeleteReminderMutation,
   useAddReminderMutation,
-  useUpdateReminderMutation
+  useUpdateReminderMutation,
+  useGetReminderStatsQuery,
+  useGetUpcomingDeadlineRemindersQuery,
+  useMarkReminderCompletedMutation
+  , useReOpenReminderMutation
 } = crmApi;

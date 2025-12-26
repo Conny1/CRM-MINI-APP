@@ -1,14 +1,34 @@
 // components/MetricCard.tsx
+import { useEffect, useState } from "react";
 import type { Metric } from "../types";
-// import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface MetricCardProps {
   metric: Metric;
 }
 
 export default function MetricCard({ metric }: MetricCardProps) {
-  const { title, value, change, icon: Icon, color } = metric;
+  const { title, value, change, icon, color } = metric;
   const isPositive = change.startsWith('+');
+    const [IconComponent, setIconComponent] = useState<Record<LucideIcon, string>>();
+
+
+  useEffect(() => {
+    const loadIcon = async () => {
+      try {
+        // Dynamically import the specific icon
+        const iconModule = await import(`lucide-react`);
+        setIconComponent(() => iconModule[icon as keyof typeof iconModule ] || iconModule.Users);
+      } catch (error) {
+        console.error('Error loading icon:', error);
+        // Fallback to Users icon
+        const { Users } = await import('lucide-react');
+        setIconComponent(() => Users);
+      }
+    };
+    
+    loadIcon();
+  }, []);
   
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -24,7 +44,7 @@ export default function MetricCard({ metric }: MetricCardProps) {
           </div>
         </div>
         <div className={`${color} p-3 rounded-lg`}>
-          <Icon className="h-6 w-6 text-white" />
+          <IconComponent className="h-6 w-6 text-white" />
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-gray-100">

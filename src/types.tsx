@@ -12,7 +12,7 @@ export interface Client {
   website?: string;
   industry?: string;
   location?: string;
-  createdAt?:string
+  createdAt?: string;
 }
 
 export type addClient = {
@@ -74,8 +74,8 @@ export interface Reminder {
   dueDate: string; // ISO date string (YYYY-MM-DD)
   completed: boolean;
   priority: ReminderPriority;
-  createdAt:string
-  dueTime:string
+  createdAt: string;
+  dueTime: string;
   // Optional denormalized UI fields
   clientName?: string;
   companyName?: string;
@@ -88,14 +88,23 @@ export interface addReminderType {
   description?: string;
   dueDate: string; // ISO date string (YYYY-MM-DD)
   priority: ReminderPriority;
-  dueTime:string
+  dueTime: string;
 }
-
+export interface updateReminderType {
+  title: string;
+  description: string;
+  dueDate: string;
+  dueTime: string;
+  priority: string;
+  client_id: string;
+  completed: string;
+  _id: string;
+}
 export interface Metric {
   title: string;
   value: string;
   change: string;
-  icon: LucideIcon;
+  icon: string;
   color: string;
 }
 
@@ -107,3 +116,19 @@ export interface Activity {
   time: string;
   date: string;
 }
+
+export interface ReminderStats {
+  counts: {
+    total: number;
+    pending: number;
+    completed: number;
+    highPriority: number;
+    overdue: number;
+    onTrack: number;
+  };
+  avgCompletionTime: number;
+  mostActiveClient: string;
+  productivityScore: number;
+}
+
+

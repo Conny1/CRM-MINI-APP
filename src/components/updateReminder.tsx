@@ -1,11 +1,36 @@
-import { X, ChevronDown, Bell, Calendar, Flag, User, AlertCircle, Plus, Clock, CheckCircle, Sparkles, Check, RefreshCw, Save, History } from "lucide-react";
+import {
+  X,
+  ChevronDown,
+  Bell,
+  Calendar,
+  Flag,
+  User,
+  AlertCircle,
+  Plus,
+  Clock,
+  CheckCircle,
+  Sparkles,
+  Check,
+  RefreshCw,
+  Save,
+  History,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { addReminderType, Client, Reminder, ReminderPriority } from "../types";
+import type {
+  addReminderType,
+  Client,
+  Reminder,
+  ReminderPriority,
+  updateReminderType,
+} from "../types";
 import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
-import { useUpdateReminderMutation, useGetClientNamesQuery } from "../redux/crm";
+import {
+  useUpdateReminderMutation,
+  useGetClientNamesQuery,
+} from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
 
 interface UpdateReminderProps {
@@ -27,7 +52,11 @@ const reminderSchema = yup.object({
   completed: yup.boolean().optional(),
 });
 
-export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }: UpdateReminderProps) {
+export default function UpdateReminder({
+  onClose,
+  initialData,
+  onUpdateSuccess,
+}: UpdateReminderProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -43,14 +72,10 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
     watch,
     reset,
     formState: { errors, isDirty },
-  } = useForm<addReminderType & { completed: boolean }>({
+  } = useForm<updateReminderType>({
     resolver: yupResolver(reminderSchema),
-    defaultValues: {
-      ...initialData,
-      dueDate: initialData.dueDate ? format(new Date(initialData.dueDate), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
-      dueTime: "09:00",
-    },
-    mode: "onChange"
+    defaultValues: initialData as any as  updateReminderType,
+    mode: "onChange",
   });
 
   const client_id = watch("client_id");
@@ -63,9 +88,21 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
   const selectedClient = clients?.find((c: Client) => c._id === client_id);
 
   const priorityConfig = {
-    high: { color: "bg-red-100 text-red-700", icon: AlertCircle, label: "High Priority" },
-    medium: { color: "bg-amber-100 text-amber-700", icon: Flag, label: "Medium Priority" },
-    low: { color: "bg-blue-100 text-blue-700", icon: Clock, label: "Low Priority" },
+    high: {
+      color: "bg-red-100 text-red-700",
+      icon: AlertCircle,
+      label: "High Priority",
+    },
+    medium: {
+      color: "bg-amber-100 text-amber-700",
+      icon: Flag,
+      label: "Medium Priority",
+    },
+    low: {
+      color: "bg-blue-100 text-blue-700",
+      icon: Clock,
+      label: "Low Priority",
+    },
   };
 
   const today = format(new Date(), "yyyy-MM-dd");
@@ -79,21 +116,44 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
   ];
 
   const quickPriorities = [
-    { label: "Urgent", value: "high", color: "bg-red-50 text-red-700 border-red-200" },
-    { label: "Important", value: "medium", color: "bg-amber-50 text-amber-700 border-amber-200" },
-    { label: "Later", value: "low", color: "bg-blue-50 text-blue-700 border-blue-200" },
+    {
+      label: "Urgent",
+      value: "high",
+      color: "bg-red-50 text-red-700 border-red-200",
+    },
+    {
+      label: "Important",
+      value: "medium",
+      color: "bg-amber-50 text-amber-700 border-amber-200",
+    },
+    {
+      label: "Later",
+      value: "low",
+      color: "bg-blue-50 text-blue-700 border-blue-200",
+    },
   ];
 
   useEffect(() => {
     // Set last updated time
     const now = new Date();
-    setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    setLastUpdated(
+      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
   }, []);
 
-  const onSubmit = async (data: addReminderType & { completed: boolean }) => {
+  const onSubmit = async (data: updateReminderType) => {
     setIsSubmitting(true);
     try {
-      const payload = { ...data, _id: initialData._id };
+      const payload = {
+        title: data.title,
+        description: data.description || "",
+        dueDate: data.dueDate,
+        dueTime: data.dueTime,
+        priority:data.priority,
+        client_id:data.client_id,
+        completed:data.completed,
+        _id:data._id
+      };
       const resp = await updateReminder(payload).unwrap();
 
       if (resp.status === 200) {
@@ -103,11 +163,11 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
             <span>Reminder updated successfully!</span>
           </div>
         );
-        
+
         if (onUpdateSuccess) {
           onUpdateSuccess();
         }
-        
+
         setTimeout(() => {
           onClose();
         }, 1500);
@@ -117,7 +177,10 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
       toast.error(
         <div className="flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-red-500" />
-          <span>Failed to update reminder: {error?.data?.message || "Please try again"}</span>
+          <span>
+            Failed to update reminder:{" "}
+            {error?.data?.message || "Please try again"}
+          </span>
         </div>
       );
     } finally {
@@ -164,7 +227,9 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
               </div>
               <div>
                 <h2 className="text-xl font-bold">Update Reminder</h2>
-                <p className="text-amber-100 text-sm mt-1">Modify reminder details and status</p>
+                <p className="text-amber-100 text-sm mt-1">
+                  Modify reminder details and status
+                </p>
               </div>
             </div>
             <button
@@ -177,30 +242,42 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
 
           {/* Reminder Summary */}
           <div className="flex items-center gap-4 mt-4">
-            <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
-              priority === 'high' ? 'bg-gradient-to-br from-red-500 to-pink-600' :
-              priority === 'medium' ? 'bg-gradient-to-br from-amber-500 to-orange-600' :
-              'bg-gradient-to-br from-blue-500 to-indigo-600'
-            }`}>
+            <div
+              className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                priority === "high"
+                  ? "bg-gradient-to-br from-red-500 to-pink-600"
+                  : priority === "medium"
+                  ? "bg-gradient-to-br from-amber-500 to-orange-600"
+                  : "bg-gradient-to-br from-blue-500 to-indigo-600"
+              }`}
+            >
               <Bell className="h-5 w-5" />
             </div>
             <div>
               <p className="font-semibold">{initialData.title}</p>
               <p className="text-amber-100 text-sm">
-                {selectedClient?.name || initialData.clientName} • {isOverdue ? "Overdue" : `${daysUntilDue} days left`}
+                {selectedClient?.name || initialData.clientName} •{" "}
+                {isOverdue ? "Overdue" : `${daysUntilDue} days left`}
               </p>
             </div>
             <div className="ml-auto text-xs bg-white/20 px-3 py-1.5 rounded-full">
               <span className="flex items-center gap-1">
                 <History className="h-3 w-3" />
-                Created: {format(new Date(initialData.createdAt || Date.now()), "MMM d, yyyy")}
+                Created:{" "}
+                {format(
+                  new Date(initialData.createdAt || Date.now()),
+                  "MMM d, yyyy"
+                )}
               </span>
             </div>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex-1 overflow-y-auto p-6 space-y-6"
+        >
           {/* Unsaved Changes Alert */}
           {isDirty && (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
@@ -210,7 +287,9 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-amber-800">Unsaved Changes</p>
-                  <p className="text-sm text-amber-600">You have made changes to this reminder</p>
+                  <p className="text-sm text-amber-600">
+                    You have made changes to this reminder
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -226,15 +305,27 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
           {/* Completion Status */}
           <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-gray-50">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${completed ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                {completed ? <CheckCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
+              <div
+                className={`p-2 rounded-lg ${
+                  completed
+                    ? "bg-green-100 text-green-600"
+                    : "bg-amber-100 text-amber-600"
+                }`}
+              >
+                {completed ? (
+                  <CheckCircle className="h-5 w-5" />
+                ) : (
+                  <Clock className="h-5 w-5" />
+                )}
               </div>
               <div>
                 <p className="font-medium text-gray-900">
                   {completed ? "Completed" : "Pending"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {completed ? "Task is marked as complete" : "Task is still pending"}
+                  {completed
+                    ? "Task is marked as complete"
+                    : "Task is still pending"}
                 </p>
               </div>
             </div>
@@ -260,8 +351,8 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
               <input
                 {...register("title")}
                 className={`w-full border rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                  errors.title ? 'border-red-300' : 'border-gray-300'
-                } ${completed ? 'line-through text-gray-500' : ''}`}
+                  errors.title ? "border-red-300" : "border-gray-300"
+                } ${completed ? "line-through text-gray-500" : ""}`}
               />
               <Bell className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
@@ -284,7 +375,7 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
               rows={3}
               placeholder="Add details, notes, or instructions..."
               className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                completed ? 'line-through text-gray-500' : ''
+                completed ? "line-through text-gray-500" : ""
               }`}
             />
           </div>
@@ -304,8 +395,8 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                     onClick={() => handleQuickDate(date.value)}
                     className={`text-xs px-2 py-1 rounded border transition-colors ${
                       dueDate === date.value
-                        ? 'bg-blue-100 text-blue-700 border-blue-300'
-                        : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                        ? "bg-blue-100 text-blue-700 border-blue-300"
+                        : "border-gray-300 text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     {date.icon} {date.label}
@@ -320,11 +411,13 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                   type="date"
                   {...register("dueDate")}
                   className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    completed ? 'opacity-70' : ''
+                    completed ? "opacity-70" : ""
                   }`}
                 />
                 {errors.dueDate && (
-                  <p className="text-red-500 text-sm mt-1">{errors.dueDate.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.dueDate.message}
+                  </p>
                 )}
               </div>
               <div>
@@ -332,7 +425,7 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                   type="time"
                   {...register("dueTime")}
                   className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    completed ? 'opacity-70' : ''
+                    completed ? "opacity-70" : ""
                   }`}
                 />
               </div>
@@ -351,9 +444,15 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                   <button
                     type="button"
                     key={item.value}
-                    onClick={() => handleQuickPriority(item.value as ReminderPriority)}
-                    className={`text-xs px-2 py-1 rounded border transition-colors ${item.color} ${
-                      priority === item.value ? 'ring-2 ring-offset-1 ring-opacity-50' : ''
+                    onClick={() =>
+                      handleQuickPriority(item.value as ReminderPriority)
+                    }
+                    className={`text-xs px-2 py-1 rounded border transition-colors ${
+                      item.color
+                    } ${
+                      priority === item.value
+                        ? "ring-2 ring-offset-1 ring-opacity-50"
+                        : ""
                     }`}
                   >
                     {item.label}
@@ -363,26 +462,31 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
             </div>
 
             <div className="flex gap-3">
-              {(["high", "medium", "low"] as ReminderPriority[]).map((level) => {
-                const config = priorityConfig[level];
-                const Icon = config.icon;
-                return (
-                  <button
-                    type="button"
-                    key={level}
-                    onClick={() => !completed && setValue("priority", level, { shouldValidate: true })}
-                    disabled={completed}
-                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                      priority === level
-                        ? `${config.color} border-current scale-105 shadow-sm`
-                        : "border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                    } ${completed ? 'opacity-70 cursor-not-allowed' : ''}`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {config.label}
-                  </button>
-                );
-              })}
+              {(["high", "medium", "low"] as ReminderPriority[]).map(
+                (level) => {
+                  const config = priorityConfig[level];
+                  const Icon = config.icon;
+                  return (
+                    <button
+                      type="button"
+                      key={level}
+                      onClick={() =>
+                        !completed &&
+                        setValue("priority", level, { shouldValidate: true })
+                      }
+                      disabled={completed}
+                      className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                        priority === level
+                          ? `${config.color} border-current scale-105 shadow-sm`
+                          : "border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                      } ${completed ? "opacity-70 cursor-not-allowed" : ""}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {config.label}
+                    </button>
+                  );
+                }
+              )}
             </div>
             {errors.priority && (
               <p className="text-red-500 text-sm flex items-center gap-1">
@@ -406,8 +510,8 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                 disabled={completed}
                 className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors ${
                   completed
-                    ? 'border-gray-200 bg-gray-100 cursor-not-allowed'
-                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                    ? "border-gray-200 bg-gray-100 cursor-not-allowed"
+                    : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
                 }`}
               >
                 {selectedClient ? (
@@ -416,14 +520,24 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                       {(selectedClient.name as string).charAt(0)}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">{selectedClient.name}</div>
-                      <div className="text-sm text-gray-500">{selectedClient.company}</div>
+                      <div className="font-medium text-gray-900">
+                        {selectedClient.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {selectedClient.company}
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <span className="text-gray-400">Select a client</span>
                 )}
-                {!completed && <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />}
+                {!completed && (
+                  <ChevronDown
+                    className={`h-4 w-4 text-gray-400 transition-transform ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                )}
               </button>
 
               {errors.client_id && (
@@ -436,29 +550,40 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
               {open && !completed && (
                 <div className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg">
                   <div className="p-2">
-                    <div className="px-3 py-2 text-xs font-medium text-gray-500">Select Client</div>
-                    {clients && clients?.map(client => (
-                      <button
-                        key={client._id}
-                        type="button"
-                        onClick={() => {
-                          setValue("client_id", client._id, { shouldValidate: true });
-                          setOpen(false);
-                        }}
-                        className={`${client_id === client._id ? "bg-blue-100" : ""} flex w-full items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors`}
-                      >
-                        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium">
-                          {(client?.name as string).charAt(0)}
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium text-gray-900">{client.name}</div>
-                          <div className="text-sm text-gray-500">{client.company}</div>
-                        </div>
-                        {client_id === client._id && (
-                          <CheckCircle className="ml-auto h-4 w-4 text-blue-600" />
-                        )}
-                      </button>
-                    ))}
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500">
+                      Select Client
+                    </div>
+                    {clients &&
+                      clients?.map((client) => (
+                        <button
+                          key={client._id}
+                          type="button"
+                          onClick={() => {
+                            setValue("client_id", client._id, {
+                              shouldValidate: true,
+                            });
+                            setOpen(false);
+                          }}
+                          className={`${
+                            client_id === client._id ? "bg-blue-100" : ""
+                          } flex w-full items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors`}
+                        >
+                          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium">
+                            {(client?.name as string).charAt(0)}
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-gray-900">
+                              {client.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {client.company}
+                            </div>
+                          </div>
+                          {client_id === client._id && (
+                            <CheckCircle className="ml-auto h-4 w-4 text-blue-600" />
+                          )}
+                        </button>
+                      ))}
                   </div>
                 </div>
               )}
@@ -468,18 +593,28 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
           {/* Preview */}
           {title && (
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Reminder Preview</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Reminder Preview
+              </h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${priorityConfig[priority].color}`}>
+                  <div
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${priorityConfig[priority].color}`}
+                  >
                     {priority.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">
                     {dueDate && format(new Date(dueDate), "MMM d, yyyy")}
-                    {isOverdue && <span className="ml-2 text-red-600">(Overdue)</span>}
+                    {isOverdue && (
+                      <span className="ml-2 text-red-600">(Overdue)</span>
+                    )}
                   </div>
                 </div>
-                <p className={`font-medium ${completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                <p
+                  className={`font-medium ${
+                    completed ? "line-through text-gray-500" : "text-gray-900"
+                  }`}
+                >
                   {title}
                 </p>
                 {selectedClient && (
@@ -489,7 +624,9 @@ export default function UpdateReminder({ onClose, initialData, onUpdateSuccess }
                   </div>
                 )}
                 {description && (
-                  <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {description}
+                  </p>
                 )}
               </div>
             </div>
