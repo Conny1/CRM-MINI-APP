@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import type {
+  Activity,
   addClient,
   addReminderType,
   Client,
@@ -12,13 +13,23 @@ import type {
   Stage,
   Tag,
   updateReminderType,
-  } from "../types";
+} from "../types";
 import { baseQueryWithReauth } from "./customBaseQuery";
+import type { User } from "lucide-react";
 
 export const crmApi = createApi({
   reducerPath: "crmApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Clients", "Tags", "Projects", "ClientStages", "Tasks", "Notes", "Reminder"],
+  tagTypes: [
+    "Clients",
+    "Tags",
+    "Projects",
+    "ClientStages",
+    "Tasks",
+    "Notes",
+    "Reminder",
+    "Logs",
+  ],
   endpoints: (builder) => ({
     findandFilterClients: builder.query<
       { status: number; data: { results: Client[] } & Pagination },
@@ -41,7 +52,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Clients"],
+      invalidatesTags: ["Clients", "Logs"],
     }),
     updateClient: builder.mutation<{ status: number; data: Client }, Client>({
       query: (body) => ({
@@ -49,7 +60,7 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Clients"],
+      invalidatesTags: ["Clients", "Logs"],
     }),
 
     getClientByid: builder.query<{ status: number; data: Client }, string>({
@@ -65,10 +76,7 @@ export const crmApi = createApi({
       }),
       providesTags: ["Clients"],
     }),
-  getClientStats: builder.query<
-      { status: number; data:  Metric[]  },
-      void
-    >({
+    getClientStats: builder.query<{ status: number; data: Metric[] }, void>({
       query: () => ({
         url: `/admin/client/stats`,
         method: "GET",
@@ -93,9 +101,9 @@ export const crmApi = createApi({
         url: `/admin/client/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Clients"],
+      invalidatesTags: ["Clients", "Logs"],
     }),
-    
+
     // TAGS
     findandFilterTags: builder.query<
       { status: number; data: { results: Tag[] } & Pagination },
@@ -118,7 +126,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Tags"],
+      invalidatesTags: ["Tags", "Logs"],
     }),
     updateTags: builder.mutation<{ status: number; data: Tag }, Tag>({
       query: (body) => ({
@@ -177,7 +185,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["ClientStages"],
+      invalidatesTags: ["ClientStages", "Logs"],
     }),
 
     getClientStatusNames: builder.query<
@@ -198,7 +206,7 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["ClientStages"],
+      invalidatesTags: ["ClientStages", "Logs"],
     }),
 
     deleteClientStatus: builder.mutation<
@@ -209,7 +217,7 @@ export const crmApi = createApi({
         url: `/admin/client-status/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["ClientStages"],
+      invalidatesTags: ["ClientStages", "Logs"],
     }),
 
     // Notes
@@ -234,7 +242,7 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: ["Notes", "Logs"],
     }),
 
     updateNotes: builder.mutation<{ status: number; data: Notes }, Notes>({
@@ -243,7 +251,7 @@ export const crmApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: ["Notes", "Logs"],
     }),
 
     deleteNotes: builder.mutation<
@@ -254,7 +262,7 @@ export const crmApi = createApi({
         url: `/admin/notes/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: ["Notes", "Logs"],
     }),
 
     // Reminders
@@ -279,16 +287,19 @@ export const crmApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Reminder"],
+      invalidatesTags: ["Reminder", "Logs"],
     }),
 
-    updateReminder: builder.mutation<{ status: number; data: Reminder }, updateReminderType >({
+    updateReminder: builder.mutation<
+      { status: number; data: Reminder },
+      updateReminderType
+    >({
       query: (body) => ({
         url: `/admin/reminder/${body._id}`,
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Reminder"],
+      invalidatesTags: ["Reminder", "Logs"],
     }),
 
     deleteReminder: builder.mutation<
@@ -299,11 +310,11 @@ export const crmApi = createApi({
         url: `/admin/reminder/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Reminder"],
+      invalidatesTags: ["Reminder", "Logs"],
     }),
 
-     getReminderStats: builder.query<
-      { status: number; data:  ReminderStats  },
+    getReminderStats: builder.query<
+      { status: number; data: ReminderStats },
       void
     >({
       query: () => ({
@@ -313,10 +324,7 @@ export const crmApi = createApi({
       providesTags: ["Reminder"],
     }),
 
-
-
-
-     markReminderCompleted: builder.mutation<
+    markReminderCompleted: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -324,10 +332,10 @@ export const crmApi = createApi({
         url: `/admin/reminder/complete/${id}`,
         method: "PATCH",
       }),
-      invalidatesTags: ["Reminder"],
+      invalidatesTags: ["Reminder", "Logs"],
     }),
 
-     reOpenReminder: builder.mutation<
+    reOpenReminder: builder.mutation<
       { status: number; data: { message: string } },
       string
     >({
@@ -335,18 +343,44 @@ export const crmApi = createApi({
         url: `/admin/reminder/reopen/${id}`,
         method: "PATCH",
       }),
-      invalidatesTags: ["Reminder"],
+      invalidatesTags: ["Reminder", "Logs"],
     }),
 
-      getUpcomingDeadlineReminders: builder.query<
+    getUpcomingDeadlineReminders: builder.query<
       { status: number; data: Reminder[] },
       void
     >({
       query: () => ({
-        url: '/admin/reminder/upcoming/deadlines',
+        url: "/admin/reminder/upcoming/deadlines",
         method: "GET",
       }),
       providesTags: ["Reminder"],
+    }),
+
+    // Recent activity and logs
+    findandFilterRecentActivity: builder.query<
+      { status: number; data: { results: Activity[] } & Pagination },
+      findandfileter
+    >({
+      query: (body) => ({
+        url: "/admin/logs/findandfilter",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Logs"],
+    }),
+
+     // Recent activity and logs
+    findRecentActivityByClientID : builder.query<
+      { status: number; data: { results: Activity[] } & Pagination },
+      findandfileter & {client_id:string}
+    >({
+      query: ({client_id, ...body}) => ({
+        url: `/admin/logs/find/${client_id}`,
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Logs"],
     }),
   }),
 });
@@ -366,7 +400,7 @@ export const {
   useDeletetagsMutation,
   useAddTagsMutation,
   useFindandFilterTagsQuery,
-    useGetTagsNamesQuery,
+  useGetTagsNamesQuery,
 
   // clientStatus
   useFindandFilterClientStatusQuery,
@@ -387,6 +421,9 @@ export const {
   useUpdateReminderMutation,
   useGetReminderStatsQuery,
   useGetUpcomingDeadlineRemindersQuery,
-  useMarkReminderCompletedMutation
-  , useReOpenReminderMutation
+  useMarkReminderCompletedMutation,
+  useReOpenReminderMutation,
+  // recentActivity / Logs
+  useFindandFilterRecentActivityQuery,
+  useFindRecentActivityByClientIDQuery,
 } = crmApi;

@@ -7,58 +7,17 @@ import {
   UpcomingEvents,
   QuickActions,
 } from "../components";
-import type { Reminder, Metric, Activity, findandfileter } from "../types";
+import type { Reminder, findandfileter } from "../types";
 import {
-  CalendarDays,
-  Users,
-  TrendingUp,
-  DollarSign,
-  Bell,
+  
   Search,
-  Filter,
-  Globe,
-  Tag,
+ 
 } from "lucide-react";
 import {
   useFindandFilterRemindersQuery,
   useGetClientStatsQuery,
 } from "../redux/crm";
 import { Link } from "react-router";
-
-const mockActivities: Activity[] = [
-  {
-    id: "1",
-    type: "call",
-    user: "Sarah Johnson",
-    description: "Had initial discovery call",
-    time: "10:30 AM",
-    date: "Today",
-  },
-  {
-    id: "2",
-    type: "email",
-    user: "Michael Lee",
-    description: "Sent proposal documents",
-    time: "Yesterday",
-    date: "Feb 13",
-  },
-  {
-    id: "3",
-    type: "meeting",
-    user: "Alex Chen",
-    description: "Project kickoff meeting",
-    time: "Feb 12",
-    date: "2 days ago",
-  },
-  {
-    id: "4",
-    type: "deal",
-    user: "Bright Labs",
-    description: "Closed $15,000 deal",
-    time: "Feb 11",
-    date: "3 days ago",
-  },
-];
 
 export default function Dashboard() {
   const [reminders, setReminders] = useState<Reminder[] | []>([]);
@@ -192,7 +151,7 @@ export default function Dashboard() {
                   See all
                 </button>
               </div>
-              <RecentActivity activities={mockActivities} />
+              <RecentActivity  />
             </div>
 
             {/* Upcoming Events */}
@@ -209,32 +168,7 @@ export default function Dashboard() {
             </div>
 
             {/* Performance Summary */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">Weekly Performance</h3>
-              <p className="text-blue-100 mb-4">
-                You're on track to exceed your monthly goals
-              </p>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Deals closed</span>
-                    <span className="font-semibold">12/20</span>
-                  </div>
-                  <div className="h-2 bg-blue-500 rounded-full overflow-hidden">
-                    <div className="h-full bg-white w-3/5"></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Revenue target</span>
-                    <span className="font-semibold">$38k/$50k</span>
-                  </div>
-                  <div className="h-2 bg-blue-500 rounded-full overflow-hidden">
-                    <div className="h-full bg-white w-4/5"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+       
           </div>
         </div>
       </div>

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import UpdateClient from "./UpdateClient";
 import { useGetClientByidQuery } from "../redux/crm";
+import ClientRecentActivity from "./ClientRecentActivity";
 
 type Props = {
   selectedClient: Client;
@@ -232,46 +233,8 @@ const clientDetails =useMemo(() =>  data?.data, [data])
                     </button>
                   </div>
                   <div className="space-y-4">
-                    {recentInteractions.map((interaction) => (
-                      <div
-                        key={interaction.id}
-                        className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-2 rounded-lg ${
-                              interaction.type === "call"
-                                ? "bg-blue-100 text-blue-600"
-                                : interaction.type === "email"
-                                ? "bg-green-100 text-green-600"
-                                : "bg-purple-100 text-purple-600"
-                            }`}
-                          >
-                            {interaction.type === "call" ? (
-                              <Phone className="h-4 w-4" />
-                            ) : interaction.type === "email" ? (
-                              <Mail className="h-4 w-4" />
-                            ) : (
-                              <Calendar className="h-4 w-4" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {interaction.title}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {interaction.date}
-                            </p>
-                          </div>
-                        </div>
-                        {interaction.duration && (
-                          <span className="text-sm text-gray-500">
-                            {interaction.duration}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+{   selectedClient?._id && <ClientRecentActivity client_id={selectedClient._id} />
+}                  </div>
                 </div>
 
                 {/* Notes Section */}
@@ -340,9 +303,7 @@ const clientDetails =useMemo(() =>  data?.data, [data])
                         <Tag className="h-4 w-4" />
                         Tags
                       </p>
-                      <button className="text-xs text-blue-600 hover:text-blue-700">
-                        + Add
-                      </button>
+                  
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {selectedClient.tags?.map((tag) => (
@@ -371,10 +332,7 @@ const clientDetails =useMemo(() =>  data?.data, [data])
                       <Calendar className="h-4 w-4" />
                       Schedule Meeting
                     </button>
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-                      <Briefcase className="h-4 w-4" />
-                      Create Project
-                    </button>
+                 
                   </div>
                 </div>
 

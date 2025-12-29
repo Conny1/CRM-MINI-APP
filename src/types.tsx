@@ -109,12 +109,11 @@ export interface Metric {
 }
 
 export interface Activity {
-  id: string;
-  type: "call" | "email" | "meeting" | "deal" | "task";
-  user: string;
+  _id: string;
+  type: "call" | "email" | "meeting" | "deal" | "task" | "audit" | "error";
+  title: string;
   description: string;
-  time: string;
-  date: string;
+  createdAt: string;
 }
 
 export interface ReminderStats {

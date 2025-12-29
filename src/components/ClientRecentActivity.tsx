@@ -10,7 +10,7 @@ import {
   Home,
   Settings,
 } from "lucide-react";
-import { useFindandFilterRecentActivityQuery } from "../redux/crm";
+import {  useFindRecentActivityByClientIDQuery } from "../redux/crm";
 import PaginationBtn from "./PaginationBtn";
 
 const activityIcons = {
@@ -24,13 +24,13 @@ const activityIcons = {
 };
 type iconType = keyof typeof activityIcons;
 
-export default function RecentActivity() {
+export default function ClientRecentActivity({client_id}:{client_id:string}) {
   const [filters, setfilters] = useState<findandfileter>({
     sortBy: "_id:-1",
     limit: 7,
     page: 1,
     search: "",
-    match_values: {},
+    match_values:{},
   });
   const [activities, setactivities] = useState<Activity[] | []>([]);
   const [paginationdata, setpaginationdata] = useState<Pagination>({
@@ -39,7 +39,7 @@ export default function RecentActivity() {
     totalPages: 0,
     totalResults: 0,
   });
-  const { data, refetch } = useFindandFilterRecentActivityQuery(filters);
+  const { data, refetch } = useFindRecentActivityByClientIDQuery ({client_id ,...filters});
 
   useEffect(() => {
     if (data) {
