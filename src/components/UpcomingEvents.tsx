@@ -1,5 +1,7 @@
 // components/UpcomingEvents.tsx
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { useState } from "react";
+import AddEventsModal from "./AddEventsModal";
 
 const upcomingEvents = [
   {
@@ -35,6 +37,8 @@ const upcomingEvents = [
 ];
 
 export default function UpcomingEvents() {
+  const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+
   return (
     <div className="space-y-4">
       {upcomingEvents.map((event) => (
@@ -45,8 +49,12 @@ export default function UpcomingEvents() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <div className={`p-1 rounded ${event.type === 'meeting' ? 'bg-blue-100' : 'bg-purple-100'}`}>
-                  {event.type === 'meeting' ? (
+                <div
+                  className={`p-1 rounded ${
+                    event.type === "meeting" ? "bg-blue-100" : "bg-purple-100"
+                  }`}
+                >
+                  {event.type === "meeting" ? (
                     <Users className="h-4 w-4 text-blue-600" />
                   ) : (
                     <Calendar className="h-4 w-4 text-purple-600" />
@@ -54,9 +62,9 @@ export default function UpcomingEvents() {
                 </div>
                 <h4 className="font-medium text-gray-900">{event.title}</h4>
               </div>
-              
+
               <p className="text-sm text-gray-600 mt-2">{event.client}</p>
-              
+
               <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
                   <Clock className="h-4 w-4" />
@@ -67,7 +75,7 @@ export default function UpcomingEvents() {
                   <span>{event.location}</span>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center space-x-2">
                   <div className="flex -space-x-2">
@@ -80,7 +88,9 @@ export default function UpcomingEvents() {
                       </div>
                     ))}
                   </div>
-                  <span className="text-sm text-gray-500">{event.participants} people</span>
+                  <span className="text-sm text-gray-500">
+                    {event.participants} people
+                  </span>
                 </div>
                 <button className="text-sm text-blue-600 hover:text-blue-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Join
@@ -90,11 +100,17 @@ export default function UpcomingEvents() {
           </div>
         </div>
       ))}
-      
-      <button className="w-full py-3 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:text-gray-800 hover:border-gray-400 transition-colors flex items-center justify-center space-x-2">
-        <Calendar className="h-5 w-5" />
+
+      <button onClick={() => setIsAddEventOpen(true)} className="w-full cursor-pointer py-3 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:text-gray-800 hover:border-gray-400 transition-colors flex items-center justify-center space-x-2">
+        <Calendar  className="h-5 w-5" />
         <span>Add new event</span>
       </button>
+
+      <AddEventsModal
+        isOpen={isAddEventOpen}
+        onClose={() => setIsAddEventOpen(false)}
+        onSubmit={() => {}}
+      />
     </div>
   );
 }

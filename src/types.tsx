@@ -130,4 +130,28 @@ export interface ReminderStats {
   productivityScore: number;
 }
 
+// types/calendar.types.ts
+export type EventType = 'meeting' | 'call';
 
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  client: string;
+  start: Date;
+  end: Date;
+  type: EventType;
+  participants: number;
+  location: string;
+  description?: string;
+}
+
+export interface UpcomingEvent {
+  id: string;
+  title: string;
+  client: string;
+  time: string;
+  date: string;
+  type: EventType;
+  participants: number;
+  location: string;
+}

@@ -6,13 +6,10 @@ import {
   RecentActivity,
   UpcomingEvents,
   QuickActions,
+  CalenderModal,
 } from "../components";
 import type { Reminder, findandfileter } from "../types";
-import {
-  
-  Search,
- 
-} from "lucide-react";
+import { Search } from "lucide-react";
 import {
   useFindandFilterRemindersQuery,
   useGetClientStatsQuery,
@@ -22,6 +19,8 @@ import { Link } from "react-router";
 export default function Dashboard() {
   const [reminders, setReminders] = useState<Reminder[] | []>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const [filters] = useState<findandfileter>({
     sortBy: "_id:-1",
     limit: 7,
@@ -65,8 +64,6 @@ export default function Dashboard() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-
-            
             </div>
           </div>
         </div>
@@ -94,7 +91,6 @@ export default function Dashboard() {
                   Track and manage your deals through each stage
                 </p>
               </div>
-             
             </div>
 
             {/* Kanban Board */}
@@ -116,7 +112,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                 </div>
-                <Link to="/reminders" className="cursor-pointer" >
+                <Link to="/reminders" className="cursor-pointer">
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                     View all
                   </button>
@@ -151,7 +147,7 @@ export default function Dashboard() {
                   See all
                 </button>
               </div>
-              <RecentActivity  />
+              <RecentActivity />
             </div>
 
             {/* Upcoming Events */}
@@ -160,7 +156,10 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Upcoming Events
                 </h3>
-                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  onClick={() => setIsCalendarOpen(true)}
+                  className="text-sm text-blue-600 cursor-pointer hover:text-blue-700 font-medium"
+                >
                   View calendar
                 </button>
               </div>
@@ -168,7 +167,6 @@ export default function Dashboard() {
             </div>
 
             {/* Performance Summary */}
-       
           </div>
         </div>
       </div>
@@ -192,6 +190,12 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <CalenderModal
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+      />
+
+   
     </div>
   );
 }
