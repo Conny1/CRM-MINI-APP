@@ -4,9 +4,7 @@ import {
   ReminderCard,
   MetricCard,
   RecentActivity,
-  UpcomingEvents,
   QuickActions,
-  CalenderModal,
 } from "../components";
 import type { Reminder, findandfileter } from "../types";
 import { Search } from "lucide-react";
@@ -19,7 +17,6 @@ import { Link } from "react-router";
 export default function Dashboard() {
   const [reminders, setReminders] = useState<Reminder[] | []>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const [filters] = useState<findandfileter>({
     sortBy: "_id:-1",
@@ -150,23 +147,8 @@ export default function Dashboard() {
               <RecentActivity />
             </div>
 
-            {/* Upcoming Events */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Upcoming Events
-                </h3>
-                <button
-                  onClick={() => setIsCalendarOpen(true)}
-                  className="text-sm text-blue-600 cursor-pointer hover:text-blue-700 font-medium"
-                >
-                  View calendar
-                </button>
-              </div>
-              <UpcomingEvents />
-            </div>
+       
 
-            {/* Performance Summary */}
           </div>
         </div>
       </div>
@@ -190,10 +172,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <CalenderModal
-        isOpen={isCalendarOpen}
-        onClose={() => setIsCalendarOpen(false)}
-      />
 
    
     </div>

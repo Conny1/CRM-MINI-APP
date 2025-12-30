@@ -2,8 +2,8 @@ import { X, ChevronDown, Bell, Calendar, Flag, User, AlertCircle, Plus, Clock, C
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { addReminderType, Client, Reminder, ReminderPriority } from "../types";
-import { useState, useEffect, useMemo } from "react";
+import type { addReminderType, Client, ReminderPriority } from "../types";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { useAddReminderMutation, useGetClientNamesQuery } from "../redux/crm";
 import { toast, ToastContainer } from "react-toastify";
@@ -17,9 +17,9 @@ interface AddReminderProps {
 
 const reminderSchema = yup.object({
   title: yup.string().required("Title is required"),
-  description: yup.string().optional(),
+  description: yup.string().optional().default(""),
   dueDate: yup.string().required("Due date is required"),
-  dueTime: yup.string().optional(),
+  dueTime: yup.string().required("Due time is required "),
   priority: yup
     .mixed<ReminderPriority>()
     .oneOf(["high", "medium", "low"])
@@ -30,7 +30,6 @@ const reminderSchema = yup.object({
 export default function AddReminder({ onClose }: AddReminderProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [addReminder] = useAddReminderMutation()
   const {data:clientDetails  } = useGetClientNamesQuery()
  const clients = useMemo(() => clientDetails?.data, [clientDetails])
@@ -39,7 +38,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
     handleSubmit,
     setValue,
     watch,
-    reset,
+    // reset,
     formState: { errors, isDirty },
   } = useForm<addReminderType>({
     resolver: yupResolver(reminderSchema),
@@ -146,7 +145,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           {/* Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-amber-500" />
               Reminder Title *
             </label>
@@ -185,7 +184,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
           {/* Date & Time Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-500" />
                 Due Date & Time *
               </label>
@@ -231,7 +230,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
           {/* Priority Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Flag className="h-4 w-4 text-gray-500" />
                 Priority *
               </label>
@@ -282,7 +281,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
 
           {/* Client Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <User className="h-4 w-4 text-gray-500" />
               Client *
             </label>

@@ -8,13 +8,10 @@ import {
   Search,
   Calendar,
   AlertCircle,
-  CheckCircle,
+  
   Clock,
   ChevronDown,
   Download,
-  MoreVertical,
-  User,
-  TrendingUp,
   RefreshCw,
   BarChart,
   Eye,
@@ -41,7 +38,7 @@ export default function Reminders() {
       match_values: {},
     });
     
-    const { data, refetch, isLoading } = useFindandFilterRemindersQuery(filters);
+    const { data, refetch} = useFindandFilterRemindersQuery(filters);
     const { data:reminderStats } = useGetReminderStatsQuery()
     const {data:upcomingDeadline } = useGetUpcomingDeadlineRemindersQuery()
 
@@ -83,9 +80,9 @@ export default function Reminders() {
     refetch();
   };
 
-  const filterandSearchReminders = (payload: findandfileter) => {
-    setfilters(payload);
-  };
+  // const filterandSearchReminders = (payload: findandfileter) => {
+  //   setfilters(payload);
+  // };
 
 
   

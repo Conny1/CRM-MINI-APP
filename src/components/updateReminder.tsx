@@ -6,7 +6,7 @@ import {
   Flag,
   User,
   AlertCircle,
-  Plus,
+  
   Clock,
   CheckCircle,
   Sparkles,
@@ -19,7 +19,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type {
-  addReminderType,
   Client,
   Reminder,
   ReminderPriority,
@@ -41,15 +40,15 @@ interface UpdateReminderProps {
 
 const reminderSchema = yup.object({
   title: yup.string().required("Title is required"),
-  description: yup.string().optional(),
+  description: yup.string().optional().default(""),
   dueDate: yup.string().required("Due date is required"),
-  dueTime: yup.string().optional(),
+  dueTime: yup.string().required("Due time is required"),
   priority: yup
     .mixed<ReminderPriority>()
     .oneOf(["high", "medium", "low"])
     .required("Priority is required"),
   client_id: yup.string().required("Client is required"),
-  completed: yup.boolean().optional(),
+  completed: yup.boolean().required("complete status is required"),
 });
 
 export default function UpdateReminder({
@@ -59,7 +58,6 @@ export default function UpdateReminder({
 }: UpdateReminderProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [updateReminder] = useUpdateReminderMutation();
   const { data: clientDetails } = useGetClientNamesQuery();
@@ -74,7 +72,7 @@ export default function UpdateReminder({
     formState: { errors, isDirty },
   } = useForm<updateReminderType>({
     resolver: yupResolver(reminderSchema),
-    defaultValues: initialData as any as  updateReminderType,
+    defaultValues: initialData as any as  updateReminderType & {_id:string},
     mode: "onChange",
   });
 
@@ -141,7 +139,7 @@ export default function UpdateReminder({
     );
   }, []);
 
-  const onSubmit = async (data: updateReminderType) => {
+  const onSubmit = async (data: updateReminderType  ) => {
     setIsSubmitting(true);
     try {
       const payload = {
@@ -152,7 +150,7 @@ export default function UpdateReminder({
         priority:data.priority,
         client_id:data.client_id,
         completed:data.completed,
-        _id:data._id
+        _id:initialData._id
       };
       const resp = await updateReminder(payload).unwrap();
 
@@ -343,7 +341,7 @@ export default function UpdateReminder({
 
           {/* Title */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-amber-500" />
               Reminder Title *
             </label>
@@ -383,7 +381,7 @@ export default function UpdateReminder({
           {/* Date & Time Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-500" />
                 Due Date & Time *
               </label>
@@ -435,7 +433,7 @@ export default function UpdateReminder({
           {/* Priority Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Flag className="h-4 w-4 text-gray-500" />
                 Priority *
               </label>
@@ -498,7 +496,7 @@ export default function UpdateReminder({
 
           {/* Client Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
               <User className="h-4 w-4 text-gray-500" />
               Client *
             </label>

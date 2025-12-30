@@ -12,7 +12,7 @@ type Props = {
 const ReminderCard = ({ reminder }: Props) => {
   const [isCompleted] = useState(reminder.completed);
   const [updateModal, setupdateModal] = useState(false);
-  const [markReminderCompleted, { isLoading }] =
+  const [markReminderCompleted] =
     useMarkReminderCompletedMutation();
 
     const [reOpenReminder] =

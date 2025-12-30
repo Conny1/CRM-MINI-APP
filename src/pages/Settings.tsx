@@ -1,28 +1,18 @@
 import { useState } from "react";
-import { PipeLineStage, Tags } from "../components";
+import { PipeLineStage } from "../components";
 import { ToastContainer } from "react-toastify";
 import {
-  Bell,
+  
   Mail,
   Calendar,
-  Shield,
-  Download,
   Users,
   Globe,
-  Palette,
-  Clock,
   Database,
-  Eye,
   BellRing,
   Zap,
-  Moon,
-  Languages,
   Save,
-  RefreshCw,
   ChevronRight,
   CheckCircle2,
-  AlertCircle,
-  HelpCircle
 } from "lucide-react";
 
 export default function SettingsPage() {

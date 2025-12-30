@@ -1,4 +1,3 @@
-import type { LucideIcon } from "lucide-react";
 
 export interface Client {
   _id: string;
@@ -16,15 +15,14 @@ export interface Client {
 }
 
 export type addClient = {
-  user_id?: string;
   name: string;
   email: string;
   status: string;
   phone: string;
   company: string;
-  website?: string;
-  industry?: string;
-  location?: string;
+  website: string 
+  industry: string;
+  location: string;
 
   // "tags":[String]
 };
@@ -85,7 +83,7 @@ export interface Reminder {
 export interface addReminderType {
   client_id: string;
   title: string;
-  description?: string;
+  description: string;
   dueDate: string; // ISO date string (YYYY-MM-DD)
   priority: ReminderPriority;
   dueTime: string;
@@ -95,10 +93,10 @@ export interface updateReminderType {
   description: string;
   dueDate: string;
   dueTime: string;
-  priority: string;
+  priority: ReminderPriority;
   client_id: string;
-  completed: string;
-  _id: string;
+  completed: boolean;
+  // _id: string;
 }
 export interface Metric {
   title: string;
@@ -130,28 +128,5 @@ export interface ReminderStats {
   productivityScore: number;
 }
 
-// types/calendar.types.ts
-export type EventType = 'meeting' | 'call';
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  client: string;
-  start: Date;
-  end: Date;
-  type: EventType;
-  participants: number;
-  location: string;
-  description?: string;
-}
-
-export interface UpcomingEvent {
-  id: string;
-  title: string;
-  client: string;
-  time: string;
-  date: string;
-  type: EventType;
-  participants: number;
-  location: string;
-}
+ 

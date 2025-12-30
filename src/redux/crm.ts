@@ -15,7 +15,6 @@ import type {
   updateReminderType,
 } from "../types";
 import { baseQueryWithReauth } from "./customBaseQuery";
-import type { User } from "lucide-react";
 
 export const crmApi = createApi({
   reducerPath: "crmApi",
@@ -292,7 +291,7 @@ export const crmApi = createApi({
 
     updateReminder: builder.mutation<
       { status: number; data: Reminder },
-      updateReminderType
+      updateReminderType & {_id:string}
     >({
       query: (body) => ({
         url: `/admin/reminder/${body._id}`,

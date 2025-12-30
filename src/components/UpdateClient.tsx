@@ -4,7 +4,6 @@ import * as yup from "yup";
 import type { addClient, Client } from "../types";
 import {
   useGetClientStatusNamesQuery,
-  useGetTagsNamesQuery,
   useUpdateClientMutation,
 } from "../redux/crm";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,7 +29,6 @@ import {
   Save,
   History,
   BarChart,
-  Clock,
 } from "lucide-react";
 
 const schema = yup.object().shape({
@@ -45,9 +43,9 @@ const schema = yup.object().shape({
     .required("Phone is required"),
   company: yup.string().required("Company is required"),
   status: yup.string().required("Status is required"),
-  website: yup.string().optional(),
-  location: yup.string().optional(),
-  industry: yup.string().optional(),
+  website: yup.string().url("Invalid URL").optional().default(""),
+  location: yup.string().optional().default(""),
+  industry: yup.string().optional().default(""),
 });
 
 type Props = {
@@ -65,7 +63,7 @@ export default function UpdateClient({
     register,
     handleSubmit,
     reset,
-    watch,
+    // watch,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<addClient>({
     resolver: yupResolver(schema),
@@ -83,7 +81,7 @@ export default function UpdateClient({
   const [lastUpdated, setLastUpdated] = useState<string>("");
 
   // Watch form values for changes
-  const currentValues = watch();
+  // const currentValues = watch();
 
   useEffect(() => {
     // Simulate last updated time
@@ -148,12 +146,7 @@ export default function UpdateClient({
     "Education",
   ];
 
-  const statusColors: Record<string, string> = {
-    Active: "bg-green-100 text-green-700 border-green-200",
-    Lead: "bg-blue-100 text-blue-700 border-blue-200",
-    Inactive: "bg-gray-100 text-gray-700 border-gray-200",
-    "At Risk": "bg-amber-100 text-amber-700 border-amber-200",
-  };
+ 
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -241,7 +234,7 @@ export default function UpdateClient({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-500" />
                 Full Name *
               </label>
@@ -265,7 +258,7 @@ export default function UpdateClient({
 
             {/* Email */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Mail className="h-4 w-4 text-gray-500" />
                 Email Address *
               </label>
@@ -289,7 +282,7 @@ export default function UpdateClient({
 
             {/* Phone */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-500" />
                 Phone Number *
               </label>
@@ -313,7 +306,7 @@ export default function UpdateClient({
 
             {/* Company */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Building className="h-4 w-4 text-gray-500" />
                 Company *
               </label>
@@ -338,7 +331,7 @@ export default function UpdateClient({
 
           {/* Status */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <Shield className="h-4 w-4 text-gray-500" />
               Client Status *
             </label>
@@ -520,25 +513,7 @@ export default function UpdateClient({
             </div>
           </div>
 
-          {/* Stats Summary */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">3</p>
-              <p className="text-xs text-gray-600">Projects</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">$42.5k</p>
-              <p className="text-xs text-gray-600">Total Value</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">94%</p>
-              <p className="text-xs text-gray-600">Satisfaction</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">2d</p>
-              <p className="text-xs text-gray-600">Since Last Contact</p>
-            </div>
-          </div>
+          
 
           {/* Form Actions */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-200">

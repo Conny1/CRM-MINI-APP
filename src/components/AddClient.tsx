@@ -5,7 +5,6 @@ import type { addClient } from "../types";
 import {
   useAddClientMutation,
   useGetClientStatusNamesQuery,
-  useGetTagsNamesQuery,
 } from "../redux/crm";
 import { ToastContainer, toast } from "react-toastify";
 import { useState } from "react";
@@ -22,10 +21,8 @@ import {
   Sparkles,
   UserPlus,
   Shield,
-  Calendar,
   MapPin,
   Globe,
-  CreditCard,
   Briefcase,
   Check,
   AlertCircle,
@@ -43,9 +40,9 @@ const schema = yup.object().shape({
     .required("Phone is required"),
   company: yup.string().required("Company is required"),
   status: yup.string().required("Status is required"),
-  website: yup.string().optional(),
-  location: yup.string().optional(),
-  industry: yup.string().optional(),
+  website: yup.string().url("Invalid URL").optional().default(''),
+  location: yup.string().optional().default(''),
+  industry: yup.string().optional().default(''),
 });
 
 type Props = {
@@ -228,7 +225,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
             {/* Email */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Mail className="h-4 w-4 text-gray-500" />
                 Email Address *
               </label>
@@ -253,7 +250,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
             {/* Phone */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-500" />
                 Phone Number *
               </label>
@@ -278,7 +275,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
             {/* Company */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Building className="h-4 w-4 text-gray-500" />
                 Company *
               </label>
@@ -386,7 +383,7 @@ export default function AddClientForm({ setshowForm }: Props) {
 
           {/* Tags Section */}
           <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className=" text-sm font-medium text-gray-700 flex items-center gap-2">
               <Tag className="h-4 w-4 text-gray-500" />
               Tags
               <span className="text-gray-400 font-normal">(Optional)</span>

@@ -13,7 +13,6 @@ import {
   Download,
   Share2,
   User,
-  Briefcase,
   Tag,
   Clock,
   CheckCircle,
@@ -52,29 +51,6 @@ const clientDetails =useMemo(() =>  data?.data, [data])
     statusConfig[clientDetails?.status as statusConfigKey]?.color ||
     "bg-gray-100 text-gray-700";
 
-  // Mock interaction data
-  const recentInteractions = [
-    {
-      id: 1,
-      type: "call",
-      title: "Discovery Call",
-      date: "Today, 10:30 AM",
-      duration: "30 mins",
-    },
-    {
-      id: 2,
-      type: "email",
-      title: "Proposal Sent",
-      date: "Yesterday, 2:15 PM",
-    },
-    {
-      id: 3,
-      type: "meeting",
-      title: "Product Demo",
-      date: "Feb 12, 11:00 AM",
-      duration: "45 mins",
-    },
-  ];
 
   return (
     
