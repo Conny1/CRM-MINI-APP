@@ -54,7 +54,7 @@ export default function SettingsPage() {
                   <ChevronRight className="h-4 w-4" />
                 </button>
           
-                <button className="w-full flex items-center justify-between p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors bg-blue-50 text-blue-600">
+                <button className="w-full flex items-center justify-between p-3  hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors bg-blue-50 text-blue-600">
                   <span className="flex items-center gap-3">
                     <Globe className="h-5 w-5" />
                     General Settings
