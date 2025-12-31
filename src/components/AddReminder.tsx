@@ -81,7 +81,7 @@ export default function AddReminder({ onClose }: AddReminderProps) {
   const onSubmit = async (data: addReminderType) => {
     setIsSubmitting(true);
     try {
-      console.log("Form Data:", data);
+      // console.log("Form Data:", data);
       // Simulate API call
         const payload = data
             const resp = await addReminder(payload).unwrap();

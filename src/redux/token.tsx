@@ -75,7 +75,7 @@ export const tokenSlice = createSlice({
   reducers: {
     updateTokenData: (state, action: PayloadAction<TokenData>) => {
       const { access_token, refresh_token, _id } = action.payload;
-      console.log(action.payload)
+      // console.log(action.payload)
 
       if (access_token) saveTokenToDB("access_token", access_token);
       if (refresh_token) saveTokenToDB("refresh_token", refresh_token);
